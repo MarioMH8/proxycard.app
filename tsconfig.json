@@ -1,0 +1,16 @@
+{
+	"extends": "@hexadrop/tsconfig",
+	"compilerOptions": {
+		"emitDecoratorMetadata": false,
+		"baseUrl": ".",
+		"rootDirs": [
+			"."
+		],
+		"paths": {
+			"@components/*": ["./src/components/*"],
+			"@layout": ["./src/layout/layout.tsx"],
+			"@lib/*": ["./src/lib/*"],
+			"@pages/*": ["./src/pages/*"]
+		}
+	}
+}

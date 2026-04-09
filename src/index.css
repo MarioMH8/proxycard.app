@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: 'belerenb';
+    src: url('/fonts/beleren-b.ttf') format('truetype');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'belerenbsc';
+    src: url('/fonts/beleren-bsc.ttf') format('truetype');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'mplantin';
+    src: url('/fonts/mplantin.ttf') format('truetype');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'mplantini';
+    src: url('/fonts/mplantin-i.ttf') format('truetype');
+    font-display: swap;
+}
+
+@plugin "tailwindcss-flow-type" {
+    fontSizeMax: 1;
+    fontSizeMin: 0.875;
+    override: true
+}
+
+@variant dark {
+    &:where(.dark *, .dark) {
+        @slot;
+    }
+
+    &:where(.system *, .system) {
+        @media (prefers-color-scheme: dark) {
+            @slot;
+        }
+    }
+}
+
+@theme {
+    --color-foreground-50: var(--color-slate-50);
+    --color-foreground-100: var(--color-slate-100);
+    --color-foreground-200: var(--color-slate-200);
+    --color-foreground-300: var(--color-slate-300);
+    --color-foreground-400: var(--color-slate-400);
+    --color-foreground-500: var(--color-slate-500);
+    --color-foreground-600: var(--color-slate-600);
+    --color-foreground-700: var(--color-slate-700);
+    --color-foreground-800: var(--color-slate-800);
+    --color-foreground-900: var(--color-slate-900);
+    --color-foreground-950: var(--color-slate-950);
+    
+
+    --color-primary-50: var(--color-violet-50);
+    --color-primary-100: var(--color-violet-100);
+    --color-primary-200: var(--color-violet-200);
+    --color-primary-300: var(--color-violet-300);
+    --color-primary-400: var(--color-violet-400);
+    --color-primary-500: var(--color-violet-500);
+    --color-primary-600: var(--color-violet-600);
+    --color-primary-700: var(--color-violet-700);
+    --color-primary-800: var(--color-violet-800);
+    --color-primary-900: var(--color-violet-900);
+    --color-primary-950: var(--color-violet-950);
+
+    --color-success-50: var(--color-green-50);
+    --color-success-100: var(--color-green-100);
+    --color-success-200: var(--color-green-200);
+    --color-success-300: var(--color-green-300);
+    --color-success-400: var(--color-green-400);
+    --color-success-500: var(--color-green-500);
+    --color-success-600: var(--color-green-600);
+    --color-success-700: var(--color-green-700);
+    --color-success-800: var(--color-green-800);
+    --color-success-900: var(--color-green-900);
+    --color-success-950: var(--color-green-950);
+
+    --color-error-50: var(--color-red-50);
+    --color-error-100: var(--color-red-100);
+    --color-error-200: var(--color-red-200);
+    --color-error-300: var(--color-red-300);
+    --color-error-400: var(--color-red-400);
+    --color-error-500: var(--color-red-500);
+    --color-error-600: var(--color-red-600);
+    --color-error-700: var(--color-red-700);
+    --color-error-800: var(--color-red-800);
+    --color-error-900: var(--color-red-900);
+    --color-error-950: var(--color-red-950);
+    
+    --default-transition-duration: 300ms;
+
+    --animate-slide-down: slideDown 400ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    @keyframes slideDown {
+        0% {
+            opacity: 0;
+            transform: translateY(-2px)
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    --animate-slide-top: slideTop 400ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    @keyframes slideTop {
+        0% {
+            opacity: 0;
+            transform: translateY(2px)
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    --animate-slide-right: slideRight 400ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    @keyframes slideRight {
+        0% {
+            opacity: 0;
+            transform: translateX(-2px)
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0)
+        }
+    }
+
+    --animate-slide-left: slideLeft 400ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    @keyframes slideLeft {
+        0% {
+            opacity: 0;
+            transform: translateX(2px)
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0)
+        }
+    }
+}
+
+@layer base {
+    ::-webkit-scrollbar {
+        height: 10px;
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-foreground-100;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-primary-500 rounded-md border-2 border-foreground-100;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-primary-700;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        ::-webkit-scrollbar-track {
+            @apply bg-foreground-950;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            @apply border-foreground-950;
+        }
+    }
+
+    :is(.light, .light *) {
+        &::-webkit-scrollbar-track {
+            @apply bg-foreground-100;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            @apply border-foreground-100;
+        }
+    }
+
+    :is(.dark, .dark *) {
+        &::-webkit-scrollbar-track {
+            @apply bg-foreground-950;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            @apply border-foreground-950;
+        }
+    }
+
+    @supports not selector(::-webkit-scrollbar) {
+        * {
+            scrollbar-color: var(--color-primary-500) transparent;
+            scrollbar-gutter: auto;
+            scrollbar-width: thin;
+        }
+    }
+
+    html {
+        @apply h-screen overflow-auto scroll-smooth;
+    }
+
+    body {
+        @apply motion-safe:transition-colors bg-foreground-100 dark:bg-foreground-950  text-foreground-800 dark:text-foreground-200 font-sans
+    }
+
+    body[data-scroll-locked] {
+        margin-right: 0 !important;
+    }
+
+    ::selection {
+        @apply bg-primary-500 text-foreground-50;
+    }
+
+    div[data-radix-popper-content-wrapper] {
+        @apply !z-30;
+    }
+}
+
+@utility scrollbar-track-foreground-800 {
+    &::-webkit-scrollbar-track {
+        @apply bg-foreground-800;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        @apply border-foreground-800;
+    }
+}
+
+@utility container {
+    padding: min(2rem, 7.5vw);
+    margin-left: auto;
+    margin-right: auto;
+}
