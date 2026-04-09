@@ -16,7 +16,7 @@ jobs:
       id-token: 'write'
     strategy:
       matrix:
-        command: [ 'lint:ci', typecheck ]
+        command: [ 'lint:ci', typecheck, test ]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
