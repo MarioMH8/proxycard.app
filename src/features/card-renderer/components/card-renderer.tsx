@@ -1,3 +1,4 @@
+import type { Layer } from '@domain';
 import { CARD_HEIGHT, CARD_WIDTH } from '@domain';
 import type Konva from 'konva';
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
@@ -22,6 +23,40 @@ interface CardRendererProps {
 	zoom?: number;
 }
 
+/** Compute the scale factor from viewport dimensions and optional zoom. */
+function computeScale(
+	viewportWidth: number,
+	viewportHeight: number,
+	cardWidth: number,
+	cardHeight: number,
+	zoom: number | undefined
+): number {
+	const fitScale = Math.min(viewportWidth / cardWidth, viewportHeight / cardHeight);
+
+	return zoom ? (zoom / 100) * fitScale : fitScale;
+}
+
+/** Compute the X/Y offsets to center the card in the viewport. */
+function computeOffset(
+	viewportWidth: number,
+	viewportHeight: number,
+	cardWidth: number,
+	cardHeight: number,
+	scale: number,
+	panX: number,
+	panY: number
+): { x: number; y: number } {
+	return {
+		x: (viewportWidth - cardWidth * scale) / 2 + panX,
+		y: (viewportHeight - cardHeight * scale) / 2 + panY,
+	};
+}
+
+/** Filter visible layers and reverse for painter's algorithm rendering order. */
+function computeRenderOrder(layers: Layer[]): Layer[] {
+	return layers.filter(layer => layer.visible).toReversed();
+}
+
 /**
  * Portable card renderer.
  * Renders a card from pure domain data using react-konva.
@@ -34,13 +69,8 @@ const CardRenderer = forwardRef<CardRendererReference, CardRendererProps>(
 
 		const stageReference = useRef<Konva.Stage>(null);
 
-		// Calculate scale from zoom or fit-to-viewport
-		const fitScale = Math.min(width / CARD_WIDTH, height / CARD_HEIGHT);
-		const scale = zoom ? (zoom / 100) * fitScale : fitScale;
-
-		// Center the card in the viewport
-		const offsetX = (width - CARD_WIDTH * scale) / 2 + panX;
-		const offsetY = (height - CARD_HEIGHT * scale) / 2 + panY;
+		const scale = computeScale(width, height, CARD_WIDTH, CARD_HEIGHT, zoom);
+		const offset = computeOffset(width, height, CARD_WIDTH, CARD_HEIGHT, scale, panX, panY);
 
 		const exportPNG = useCallback(
 			async (options?: { pixelRatio?: number }): Promise<Blob> => {
@@ -91,10 +121,7 @@ const CardRenderer = forwardRef<CardRendererReference, CardRendererProps>(
 			[exportPNG, getStage, resetTransform]
 		);
 
-		// Render visible layers in stack order (index 0 = topmost, rendered last via painter's algorithm)
-		const visibleLayers = card.layers.filter(layer => layer.visible);
-		// Reverse so index 0 (top of stack) is rendered last (on top)
-		const renderOrder = visibleLayers.toReversed();
+		const renderOrder = computeRenderOrder(card.layers);
 
 		return (
 			<Stage
@@ -103,8 +130,8 @@ const CardRenderer = forwardRef<CardRendererReference, CardRendererProps>(
 				scaleX={scale}
 				scaleY={scale}
 				width={width}
-				x={offsetX}
-				y={offsetY}>
+				x={offset.x}
+				y={offset.y}>
 				<KonvaLayer>
 					{renderOrder.map(layer => (
 						<LayerRenderer
@@ -122,5 +149,6 @@ const CardRenderer = forwardRef<CardRendererReference, CardRendererProps>(
 
 CardRenderer.displayName = 'CardRenderer';
 
+export { computeOffset, computeRenderOrder, computeScale };
 export type { CardRendererProps };
 export default CardRenderer;
