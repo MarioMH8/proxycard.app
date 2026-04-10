@@ -1,7 +1,7 @@
 import type { FontVariantsProperties } from '@components/font';
 import font from '@components/font';
-import type { VariantProperties } from '@lib/cva';
-import { cn, cva } from '@lib/cva';
+import type { VariantProperties } from '@shared/cva';
+import { cn, cva } from '@shared/cva';
 import { Slot } from 'radix-ui';
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 import type { LinkProps as RRLinkProps } from 'react-router';

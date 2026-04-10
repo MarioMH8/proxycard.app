@@ -1,4 +1,4 @@
-import { cn, cva } from '@lib/cva';
+import { cn, cva } from '@shared/cva';
 import { Tabs as RadixTabs } from 'radix-ui';
 import type { ReactNode } from 'react';
 

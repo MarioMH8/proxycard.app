@@ -1,7 +1,7 @@
 import font from '@components/font';
-import type { VariantProperties } from '@lib/cva';
-import { cn, cva } from '@lib/cva';
-import type { PropertiesWithAsChild } from '@lib/types';
+import type { VariantProperties } from '@shared/cva';
+import { cn, cva } from '@shared/cva';
+import type { PropertiesWithAsChild } from '@shared/types';
 import { Label as RadixLabel, Slot } from 'radix-ui';
 import type { ReactElement, ReactNode } from 'react';
 import { Children } from 'react';

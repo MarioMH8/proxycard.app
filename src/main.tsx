@@ -1,6 +1,6 @@
 import './index.css';
 
-import Layout from '@layout';
+import Layout from '@shared/layout';
 import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router';

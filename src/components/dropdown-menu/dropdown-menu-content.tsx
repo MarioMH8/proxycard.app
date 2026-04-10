@@ -1,5 +1,5 @@
-import type { VariantProperties } from '@lib/cva';
-import { cn, cva } from '@lib/cva';
+import type { VariantProperties } from '@shared/cva';
+import { cn, cva } from '@shared/cva';
 import { DropdownMenu as RadixDropdownMenu } from 'radix-ui';
 import type { ReactNode } from 'react';
 

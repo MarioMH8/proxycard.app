@@ -1,4 +1,4 @@
-import { cn } from '@lib/cva';
+import { cn } from '@shared/cva';
 import type { ElementType, ReactNode } from 'react';
 
 interface EmptyStateProps {

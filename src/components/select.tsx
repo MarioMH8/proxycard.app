@@ -1,6 +1,6 @@
 import type { InputVariantProperties } from '@components/input';
 import { className } from '@components/input';
-import type { PropertiesWithAsChild } from '@lib/types';
+import type { PropertiesWithAsChild } from '@shared/types';
 import { Slot } from 'radix-ui';
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 

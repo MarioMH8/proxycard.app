@@ -1,6 +1,6 @@
 import font from '@components/font';
-import type { VariantProperties } from '@lib/cva';
-import { cn } from '@lib/cva';
+import type { VariantProperties } from '@shared/cva';
+import { cn } from '@shared/cva';
 import { DropdownMenu as RadixDropdownMenu } from 'radix-ui';
 import type { ReactNode } from 'react';
 

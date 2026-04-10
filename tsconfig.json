@@ -8,9 +8,9 @@
 		],
 		"paths": {
 			"@components/*": ["./src/components/*"],
-			"@layout": ["./src/layout/layout.tsx"],
-			"@lib/*": ["./src/lib/*"],
-			"@pages/*": ["./src/pages/*"]
+			"@domain": ["./src/domain/index.ts"],
+			"@pages/*": ["./src/pages/*"],
+			"@shared/*": ["./src/shared/*"]
 		}
 	}
 }

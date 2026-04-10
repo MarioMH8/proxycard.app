@@ -1,5 +1,5 @@
-import type { VariantProperties } from '@lib/cva';
-import { cn, cva } from '@lib/cva';
+import type { VariantProperties } from '@shared/cva';
+import { cn, cva } from '@shared/cva';
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 
 const variants = cva({

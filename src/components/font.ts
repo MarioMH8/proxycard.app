@@ -1,5 +1,5 @@
-import type { VariantProperties } from '@lib/cva';
-import { cva } from '@lib/cva';
+import type { VariantProperties } from '@shared/cva';
+import { cva } from '@shared/cva';
 
 const variants = cva({
 	base: 'motion-safe:transition-colors',
