@@ -29,7 +29,7 @@ function computeScale(
 	viewportHeight: number,
 	cardWidth: number,
 	cardHeight: number,
-	zoom: number | undefined
+	zoom?: number
 ): number {
 	const fitScale = Math.min(viewportWidth / cardWidth, viewportHeight / cardHeight);
 
