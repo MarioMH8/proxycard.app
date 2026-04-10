@@ -10,4 +10,5 @@ interface CardRendererReference {
 	resetTransform: () => void;
 }
 
-export default CardRendererReference;
+// eslint-disable-next-line import/prefer-default-export -- verbatimModuleSyntax prevents `export default` on pure types
+export type { CardRendererReference };
