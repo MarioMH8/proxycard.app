@@ -1,2 +1,2 @@
 // eslint-disable-next-line import/prefer-default-export
-export { default as LayersPanel } from './components/layers-panel';
+export { default as LayerPanel } from './components/layer-panel';
