@@ -1,14 +1,11 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /* eslint-disable no-console */
 /*
  * generate-thumbs.ts
  *
- * Generates .thumb.png thumbnails for every source PNG found under `public/`.
- * Thumbnails preserve the alpha channel (transparent background).
- *
- * By default every image is scaled down so its longest side is 120 px,
- * preserving the original aspect ratio (fit: inside). This ensures that
- * wide images like PT boxes get a reasonable size instead of becoming tiny.
+ * CLI entry-point for thumbnail generation. All pure logic lives in
+ * `./generate-thumbs.lib.ts`; this file only handles argument parsing,
+ * colour output, and process lifecycle.
  *
  * Usage:
  *   bun run generate:thumbs                     # regenerate all thumbs under public/
@@ -22,12 +19,13 @@
  *   --help           Show this help message
  */
 
-import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
 
 import sharp from 'sharp';
+
+import { buildResizeOptions, collectSourcePngs } from './generate-thumbs.library';
 
 /*
  * Max side length for the default resize. Every image is scaled so its
@@ -36,15 +34,17 @@ import sharp from 'sharp';
 const DEFAULT_MAX_SIDE = 120;
 
 /*
- * ANSI color helpers via Bun.color. Using "ansi" auto-detects the terminal
- * color depth and returns an empty string when colors are not supported.
+ * ANSI color helpers — hardcoded sequences, compatible with any runtime.
+ * Colors are suppressed when the terminal does not support them (NO_COLOR /
+ * non-TTY), matching the behaviour of the former Bun.color approach.
  */
-const RESET = '\u001B[0m';
-const GREEN = Bun.color('#22c55e', 'ansi') ?? '';
-const RED = Bun.color('#ef4444', 'ansi') ?? '';
-const YELLOW = Bun.color('#eab308', 'ansi') ?? '';
-const CYAN = Bun.color('#06b6d4', 'ansi') ?? '';
-const DIM = '\u001B[2m';
+const SUPPORTS_COLOR = process.stdout.isTTY && process.env['NO_COLOR'] === undefined;
+const RESET = SUPPORTS_COLOR ? '\u001B[0m' : '';
+const GREEN = SUPPORTS_COLOR ? '\u001B[32m' : '';
+const RED = SUPPORTS_COLOR ? '\u001B[31m' : '';
+const YELLOW = SUPPORTS_COLOR ? '\u001B[33m' : '';
+const CYAN = SUPPORTS_COLOR ? '\u001B[36m' : '';
+const DIM = SUPPORTS_COLOR ? '\u001B[2m' : '';
 
 const HELP_TEXT = `
 Usage: bun run generate:thumbs [path...] [options]
@@ -59,17 +59,17 @@ Default: scale each image so its longest side is ${String(DEFAULT_MAX_SIDE)} px 
 If no path is given, scans the whole public/ directory.
 `.trim();
 
-interface Options {
+interface CliOptions {
 	height?: number;
 	scale?: number;
 	targets: string[];
 	width?: number;
 }
 
-function parseArguments(): Options {
+function parseArguments(): CliOptions {
 	const { positionals, values } = parseArgs({
 		allowPositionals: true,
-		args: Bun.argv,
+		args: process.argv,
 		options: {
 			height: { type: 'string' },
 			help: { short: 'h', type: 'boolean' },
@@ -84,7 +84,7 @@ function parseArguments(): Options {
 		process.exit(0);
 	}
 
-	const options: Options = { targets: positionals.slice(2) };
+	const options: CliOptions = { targets: positionals.slice(2) };
 
 	if (values.scale !== undefined) {
 		const scale = Number.parseFloat(values.scale);
@@ -123,82 +123,21 @@ function parseArguments(): Options {
 }
 
 /*
- * Recursively collect all source PNG files (excluding .thumb.png) under the
- * given path (file or directory).
+ * Generate a single .thumb.png next to the source file, preserving alpha,
+ * and print a coloured status line.
  */
-async function collectSourcePngs(target: string): Promise<string[]> {
-	const absolute = path.resolve(target);
-
-	if (!existsSync(absolute)) {
-		console.warn(`${YELLOW}warn${RESET}   path not found — ${absolute}`);
-
-		return [];
-	}
-
-	if (statSync(absolute).isFile()) {
-		if (path.extname(absolute).toLowerCase() === '.png' && !absolute.endsWith('.thumb.png')) {
-			return [absolute];
-		}
-
-		console.warn(`${YELLOW}warn${RESET}   skipping non-source file — ${absolute}`);
-
-		return [];
-	}
-
-	const glob = new Bun.Glob('**/*.png');
-	const results: string[] = [];
-
-	for await (const file of glob.scan({ absolute: true, cwd: absolute })) {
-		if (!file.endsWith('.thumb.png')) {
-			results.push(file);
-		}
-	}
-
-	return results;
-}
-
-/*
- * Build the sharp resize options for a given source size and CLI options.
- * When a scale factor is given, both dimensions are multiplied (fit: fill).
- * Otherwise, the image fits inside a DEFAULT_MAX_SIDE × DEFAULT_MAX_SIDE box
- * (fit: inside), which keeps PT boxes and other wide images readable.
- */
-function buildResizeOptions(
-	sourceWidth: number | undefined,
-	sourceHeight: number | undefined,
-	options: Options
-): sharp.ResizeOptions {
-	if (options.scale !== undefined) {
-		return {
-			fit: 'fill',
-			height: Math.max(1, Math.round((sourceHeight ?? 0) * options.scale)),
-			width: Math.max(1, Math.round((sourceWidth ?? 0) * options.scale)),
-		};
-	}
-
-	return {
-		fit: 'inside',
-		height: options.height ?? DEFAULT_MAX_SIDE,
-		width: options.width ?? DEFAULT_MAX_SIDE,
-		withoutEnlargement: true,
-	};
-}
-
-/*
- * Generate a single .thumb.png next to the source file, preserving alpha.
- */
-async function generateThumb(sourcePath: string, options: Options): Promise<void> {
+async function generateThumbWithOutput(sourcePath: string, options: CliOptions): Promise<void> {
 	const thumbPath = path.join(path.dirname(sourcePath), `${path.basename(sourcePath, '.png')}.thumb.png`);
 
 	const image = sharp(sourcePath).ensureAlpha();
 	const metadata = await image.metadata();
-	const resizeOptions = buildResizeOptions(metadata.width, metadata.height, options);
+	const resizeOptions = buildResizeOptions(metadata.width, metadata.height, options, DEFAULT_MAX_SIDE);
 
 	await image.resize(resizeOptions).png({ compressionLevel: 9 }).toFile(thumbPath);
 
-	const out = await sharp(thumbPath).metadata();
+	const outputMetadata = await sharp(thumbPath).metadata();
 	const relativePath = thumbPath.replace(path.resolve('.'), '.');
-	const dims = `${DIM}(${String(out.width)}×${String(out.height)})${RESET}`;
+	const dims = `${DIM}(${String(outputMetadata.width)}×${String(outputMetadata.height)})${RESET}`;
 
 	console.info(`${GREEN}✓${RESET}  ${relativePath}  ${dims}`);
 }
@@ -206,7 +145,7 @@ async function generateThumb(sourcePath: string, options: Options): Promise<void
 /*
  * Entry point
  */
-const ROOT_PUBLIC = path.resolve(import.meta.dir, '..', 'public');
+const ROOT_PUBLIC = path.resolve(import.meta.dirname, '..', 'public');
 
 async function main(): Promise<void> {
 	const options = parseArguments();
@@ -228,7 +167,7 @@ async function main(): Promise<void> {
 	await Promise.all(
 		allSources.map(async source => {
 			try {
-				await generateThumb(source, options);
+				await generateThumbWithOutput(source, options);
 				ok++;
 			} catch (error) {
 				console.error(`${RED}✗${RESET}  ${source}\n   ${(error as Error).message}`);
