@@ -3,6 +3,7 @@ import {
 	removeLayer,
 	renameLayer,
 	reorderLayer,
+	selectLockedLayerIds,
 	toggleLock,
 	toggleVisibility,
 	useEditorDispatch,
@@ -43,7 +44,7 @@ function useLayerOperations(): UseLayerOperationsReturn {
 	 * We use a selector that reads the full locked list so the hook doesn't
 	 * need to receive a specific layerId — each handler receives it as argument.
 	 */
-	const lockedLayerIds = useEditorSelector(state => state.editor.lockedLayerIds);
+	const lockedLayerIds = useEditorSelector(selectLockedLayerIds);
 
 	const isLocked = (layerId: string): boolean => lockedLayerIds.includes(layerId);
 
