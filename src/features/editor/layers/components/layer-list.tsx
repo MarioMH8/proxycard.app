@@ -12,10 +12,10 @@ import {
 	useEditorSelector,
 } from '../../store';
 import useLayerOperations from '../hooks/use-layer-operations';
-import SortableLayerItem from './sortable-layer-item';
+import LayerItemSortable from './layer-item-sortable';
 
 /**
- * LayerPanel — full layer stack with drag-and-drop reorder via @dnd-kit/sortable.
+ * LayerList — full layer stack with drag-and-drop reorder via @dnd-kit/sortable.
  *
  * Features:
  * - DndContext + SortableContext for vertical drag-to-reorder
@@ -24,7 +24,7 @@ import SortableLayerItem from './sortable-layer-item';
  * - onDragEnd dispatches reorderLayer to cardSlice
  * - All other layer operations delegated to useLayerOperations (locked-layer guards included)
  */
-function LayerPanel(): ReactNode {
+function LayerList(): ReactNode {
 	const dispatch = useEditorDispatch();
 	const layers = useEditorSelector(selectLayers);
 	const [activeDragId, setActiveDragId] = useState<string>();
@@ -83,7 +83,7 @@ function LayerPanel(): ReactNode {
 					className='flex flex-col gap-1'
 					role='list'>
 					{layers.map(layer => (
-						<SortableLayerItem
+						<LayerItemSortable
 							isDragging={isDragging}
 							key={layer.id}
 							layer={layer}
@@ -101,6 +101,6 @@ function LayerPanel(): ReactNode {
 	);
 }
 
-LayerPanel.displayName = 'LayerPanel';
+LayerList.displayName = 'LayerList';
 
-export default LayerPanel;
+export default LayerList;

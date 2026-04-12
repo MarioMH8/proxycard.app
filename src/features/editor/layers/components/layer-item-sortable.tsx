@@ -6,7 +6,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { selectImageStatus, selectIsLayerLocked, selectSelectedLayerId, useEditorSelector } from '../../store';
 import LayerItem from './layer-item';
 
-interface SortableLayerItemProps {
+interface LayerItemSortableProps {
 	isDragging: boolean;
 	layer: Layer;
 	onDuplicate: (layerId: string) => void;
@@ -22,7 +22,7 @@ interface SortableLayerItemProps {
  * Reads per-layer editor state (lock, selection, image status) independently
  * to avoid re-rendering all items when any single piece of state changes.
  */
-function SortableLayerItem({
+function LayerItemSortable({
 	isDragging,
 	layer,
 	onDuplicate,
@@ -31,7 +31,7 @@ function SortableLayerItem({
 	onSelect,
 	onToggleLock,
 	onToggleVisibility,
-}: SortableLayerItemProps): ReactNode {
+}: LayerItemSortableProps): ReactNode {
 	const imageStatus = useEditorSelector(state => selectImageStatus(state, layer.id));
 	const isLocked = useEditorSelector(state => selectIsLayerLocked(state, layer.id));
 	const isSelected = useEditorSelector(state => selectSelectedLayerId(state) === layer.id);
@@ -81,7 +81,7 @@ function SortableLayerItem({
 	);
 }
 
-SortableLayerItem.displayName = 'SortableLayerItem';
+LayerItemSortable.displayName = 'LayerItemSortable';
 
-export type { SortableLayerItemProps };
-export default SortableLayerItem;
+export type { LayerItemSortableProps };
+export default LayerItemSortable;

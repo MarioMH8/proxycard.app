@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 
 import { CanvasEmptyState, CanvasViewport } from './canvas';
 import { FramePickerDialog } from './frame-picker';
-import { LayerPanel } from './layers';
+import { LayersPanel } from './layers';
 import {
 	createEditorStore,
 	selectIsFramePickerOpen,
@@ -96,7 +96,7 @@ function EditorLayoutInner(): ReactNode {
 			<aside
 				aria-label='Layers sidebar'
 				className='hidden w-2/5 min-w-lg shrink-0 overflow-y-auto xl:flex xl:flex-col'>
-				<LayerPanel />
+				<LayersPanel />
 			</aside>
 
 			{/* Frame picker dialog */}

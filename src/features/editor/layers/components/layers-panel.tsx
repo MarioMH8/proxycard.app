@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 
 import { selectLayers, useEditorSelector } from '../../store';
+import LayerList from './layer-list';
 import LayersEmptyState from './layers-empty-state';
 import LayersHeader from './layers-header';
-import LayerList from './layers-list';
 
 /**
  * Layers panel for the editor sidebar.
@@ -23,7 +23,7 @@ function LayersPanel(): ReactNode {
 
 			{/* Content */}
 			<div className='flex-1 overflow-y-auto p-2 rounded-xl border border-foreground-300 bg-foreground-200 shadow-inner dark:border-foreground-800 dark:bg-foreground-900'>
-				{layers.length === 0 ? <LayersEmptyState /> : <LayerList layers={layers} />}
+				{layers.length === 0 ? <LayersEmptyState /> : <LayerList />}
 			</div>
 		</div>
 	);
