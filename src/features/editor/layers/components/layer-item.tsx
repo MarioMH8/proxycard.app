@@ -1,8 +1,9 @@
 import Button from '@components/button';
+import Span from '@components/span';
 import type { Layer } from '@domain';
 import { cn } from '@shared/cva';
 import { Copy, Eye, EyeOff, GripVertical, Image, Lock, Trash2, Type, Unlock } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode, Ref } from 'react';
 import { useCallback, useState } from 'react';
 
 import LayerNameEditor from './layer-name-editor';
@@ -10,10 +11,21 @@ import LayerThumbnail from './layer-thumbnail';
 
 type LayerImageStatus = 'error' | 'loaded' | 'loading';
 
+interface DragHandleProps {
+	[key: string]: unknown;
+	ref: Ref<HTMLButtonElement>;
+}
+
+type RowProps = Record<string, unknown>;
 interface LayerItemProps {
+	/** ref forwarded to the grip button (setActivatorNodeRef — pointer drag activator only) */
+	dragHandleProps?: DragHandleProps;
+	/** Image loading status from editorSlice */
 	/** Image loading status from editorSlice */
 	imageStatus: LayerImageStatus | undefined;
-	/** Whether a global drag is currently in progress */
+	/** Index of this layer in the list (used for keyboard reorder) */
+	index: number;
+	/** Whether this item is actively being dragged */
 	isDragging?: boolean;
 	/** Whether this layer is currently locked (soft lock) */
 	isLocked: boolean;
@@ -23,6 +35,8 @@ interface LayerItemProps {
 	layer: Layer;
 	/** Called to duplicate this layer */
 	onDuplicate: () => void;
+	/** Called for keyboard-driven reorder (Cmd/Ctrl + ArrowUp/Down) */
+	onKeyboardReorder?: (index: number, direction: 'down' | 'up') => void;
 	/** Called to remove this layer */
 	onRemove: () => void;
 	/** Called to rename this layer */
@@ -33,9 +47,11 @@ interface LayerItemProps {
 	onToggleLock: () => void;
 	/** Called to toggle layer visibility */
 	onToggleVisibility: () => void;
+	/** dnd-kit attributes + listeners spread onto the li (enables KeyboardSensor on row focus) */
+	rowProps?: RowProps;
 }
 
-const ICON_SIZE = 14;
+const ICON_SIZE = 16;
 
 /**
  * Individual layer entry in the layer panel.
@@ -45,19 +61,25 @@ const ICON_SIZE = 14;
  *
  * Locked state: disables drag handle and remove button (soft lock).
  * All other operations (visibility, opacity, rename, duplicate) remain allowed.
+ *
+ * Keyboard reorder: Cmd/Ctrl + ArrowUp/Down moves the layer up or down.
  */
 function LayerItem({
+	dragHandleProps,
 	imageStatus,
+	index,
 	isDragging = false,
 	isLocked,
 	isSelected,
 	layer,
 	onDuplicate,
+	onKeyboardReorder,
 	onRemove,
 	onRename,
 	onSelect,
 	onToggleLock,
 	onToggleVisibility,
+	rowProps,
 }: LayerItemProps): ReactNode {
 	const [isEditing, setIsEditing] = useState(false);
 
@@ -81,31 +103,57 @@ function LayerItem({
 		setIsEditing(false);
 	}, []);
 
+	const handleKeyDown = useCallback(
+		(event: KeyboardEvent) => {
+			if (!onKeyboardReorder) {
+				return;
+			}
+
+			const modifierKey = event.metaKey || event.ctrlKey;
+
+			if (modifierKey && event.key === 'ArrowUp') {
+				event.preventDefault();
+				onKeyboardReorder(index, 'up');
+			} else if (modifierKey && event.key === 'ArrowDown') {
+				event.preventDefault();
+				onKeyboardReorder(index, 'down');
+			}
+		},
+		[index, onKeyboardReorder]
+	);
+
 	return (
 		<li
 			className={cn(
-				'group flex items-center gap-1.5 rounded-lg px-2 py-1.5',
-				'motion-safe:transition-[background-color,box-shadow] motion-safe:duration-150',
-				isSelected
-					? 'bg-primary-100 ring-1 ring-primary-400 dark:bg-primary-900/40 dark:ring-primary-600'
-					: 'bg-foreground-100 hover:bg-foreground-50 dark:bg-foreground-800 dark:hover:bg-foreground-700',
-				isImageError && 'ring-1 ring-error-400 dark:ring-error-600'
-			)}>
-			{/* Drag handle — disabled when locked */}
-			<span
-				aria-disabled={isLocked}
+				'flex items-center gap-2 rounded-lg px-3 py-2.5 shadow-sm',
+				'bg-foreground-100 dark:bg-foreground-800',
+				'hover:bg-foreground-50 dark:hover:bg-foreground-700',
+				'motion-safe:transition-[opacity,box-shadow,background-color] motion-safe:duration-150 cursor-pointer',
+				!layer.visible && 'opacity-50',
+				isDragging && 'z-10 bg-foreground-200 dark:bg-foreground-700 shadow-lg',
+				isSelected && 'ring-2 ring-primary-500 dark:ring-primary-400',
+				isImageError && 'ring-2 ring-error-400 dark:ring-error-600'
+			)}
+			onKeyDown={handleKeyDown}
+			{...rowProps}>
+			{/* Drag handle — only this element activates DnD (setActivatorNodeRef) */}
+			<Button
 				aria-label='Drag to reorder'
 				className={cn(
-					'flex shrink-0 cursor-grab items-center text-foreground-400',
-					isLocked && 'cursor-not-allowed opacity-30',
+					'shrink-0 cursor-grab touch-none text-foreground-400',
+					isLocked && 'pointer-events-none opacity-30',
 					'active:cursor-grabbing'
 				)}
-				data-drag-handle>
+				dimension='sm'
+				icon
+				transparent
+				type='button'
+				{...dragHandleProps}>
 				<GripVertical
 					aria-hidden='true'
 					size={ICON_SIZE}
 				/>
-			</span>
+			</Button>
 
 			{/* Thumbnail */}
 			<div
@@ -124,11 +172,11 @@ function LayerItem({
 			</div>
 
 			{/* Type icon */}
-			<span
-				aria-hidden='true'
-				className='shrink-0 text-foreground-500'>
+			<Span
+				className='shrink-0'
+				variant='middle'>
 				{isTextLayer ? <Type size={ICON_SIZE} /> : <Image size={ICON_SIZE} />}
-			</span>
+			</Span>
 
 			{/* Layer name (inline editable on double-click) */}
 			<div
@@ -145,7 +193,7 @@ function LayerItem({
 				/>
 			</div>
 
-			{/* Controls — hidden until group hover (or always visible when selected/locked) */}
+			{/* Controls */}
 			<div className='flex shrink-0 items-center gap-0.5'>
 				{/* Error indicator */}
 				{isImageError && (
@@ -161,8 +209,7 @@ function LayerItem({
 				<Button
 					aria-label={layer.visible ? 'Hide layer' : 'Show layer'}
 					aria-pressed={!layer.visible}
-					className={cn(!layer.visible && 'text-foreground-400')}
-					dimension='xs'
+					dimension='sm'
 					icon
 					onClick={event => {
 						event.stopPropagation();
@@ -188,7 +235,7 @@ function LayerItem({
 				<Button
 					aria-label={isLocked ? 'Unlock layer' : 'Lock layer'}
 					aria-pressed={isLocked}
-					dimension='xs'
+					dimension='sm'
 					icon
 					onClick={event => {
 						event.stopPropagation();
@@ -213,7 +260,7 @@ function LayerItem({
 				{/* Duplicate */}
 				<Button
 					aria-label='Duplicate layer'
-					dimension='xs'
+					dimension='sm'
 					icon
 					onClick={event => {
 						event.stopPropagation();
@@ -232,7 +279,7 @@ function LayerItem({
 				<Button
 					aria-disabled={isLocked}
 					aria-label='Remove layer'
-					dimension='xs'
+					dimension='sm'
 					disabled={isLocked}
 					icon
 					onClick={event => {
@@ -256,5 +303,5 @@ function LayerItem({
 
 LayerItem.displayName = 'LayerItem';
 
-export type { LayerImageStatus, LayerItemProps };
+export type { LayerImageStatus, LayerItemProps, RowProps };
 export default LayerItem;
