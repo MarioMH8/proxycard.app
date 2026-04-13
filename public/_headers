@@ -1,0 +1,77 @@
+# =============================================================================
+# Cloudflare Pages – HTTP Response Headers
+# https://developers.cloudflare.com/pages/configuration/headers/
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Immutable hashed assets (JS, CSS chunks produced by Vite)
+# Vite appends a content-hash to every file in /assets/, so these can be
+# cached forever and revalidated only when the hash changes.
+# ---------------------------------------------------------------------------
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ---------------------------------------------------------------------------
+# Static image assets served from /frames/ (PNGs used by the card renderer).
+# These don't have a content hash in their filename, so we use a long but
+# non-immutable TTL and rely on Cloudflare's ETag / Last-Modified for
+# conditional revalidation.
+# ---------------------------------------------------------------------------
+/frames/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400, stale-if-error=604800
+
+# ---------------------------------------------------------------------------
+# Favicon – moderate TTL; changes rarely.
+# ---------------------------------------------------------------------------
+/favicon.svg
+  Cache-Control: public, max-age=86400, stale-while-revalidate=3600
+
+# ---------------------------------------------------------------------------
+# HTML entry point (index.html) – must NEVER be cached at the CDN edge so
+# that new deployments are picked up immediately.  The browser may store it
+# briefly, but must always revalidate.
+# ---------------------------------------------------------------------------
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# ---------------------------------------------------------------------------
+# Global security headers – applied to every response.
+# ---------------------------------------------------------------------------
+/*
+  # Prevent the page from being embedded in an iframe on other origins.
+  X-Frame-Options: DENY
+
+  # Block MIME-type sniffing.
+  X-Content-Type-Options: nosniff
+
+  # Control referrer information sent to third parties.
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Disable browser features that the app doesn't use.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=()
+
+  # Content-Security-Policy
+  # - The app is fully client-side; no backend calls.
+  # - Konva.js renders to <canvas> and creates blob: URLs for PNG export.
+  # - Fonts loaded via @fontsource (bundled, served from same origin).
+  # - User-supplied art images are loaded as data: URIs or same-origin blobs.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+
+  # HSTS – tell browsers to only use HTTPS for 1 year (Cloudflare enforces
+  # HTTPS anyway, but belt-and-suspenders).
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+  # Isolate this page's browsing context from cross-origin documents.
+  # Prevents cross-origin attacks (Spectre/XS-Leaks) and is a prerequisite
+  # for enabling SharedArrayBuffer (used by some WASM workloads).
+  Cross-Origin-Opener-Policy: same-origin
+
+  # Require all subresources to opt-in to cross-origin loading.
+  # Pairs with COOP to form a fully isolated cross-origin context.
+  Cross-Origin-Embedder-Policy: require-corp
+
+  # Block Flash/PDF policy files from loading cross-domain.
+  X-Permitted-Cross-Domain-Policies: none

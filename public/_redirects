@@ -1,0 +1,11 @@
+# =============================================================================
+# Cloudflare Pages – SPA Fallback Redirect
+# https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# React Router uses BrowserRouter (HTML5 History API).  Any URL that doesn't
+# match a real static file must be served as index.html so the client-side
+# router can handle it.  Without this rule, a hard refresh on /gallery (or any
+# deep link) would return a 404 from Cloudflare Pages.
+# =============================================================================
+
+/*  /index.html  200

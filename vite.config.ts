@@ -62,8 +62,18 @@ function thumbs(): Plugin {
 
 export default defineConfig({
 	build: {
+		/*
+		 * Emit assets with content-hash in the filename so that the
+		 * "Cache-Control: immutable" header in public/_headers is safe.
+		 */
+		assetsDir: 'assets',
 		rolldownOptions: {
 			output: {
+				// Hashed filenames for JS chunks → safe to cache forever.
+				chunkFileNames: 'assets/[name]-[hash].js',
+				entryFileNames: 'assets/[name]-[hash].js',
+				// Hashed filenames for CSS and other static assets.
+				assetFileNames: 'assets/[name]-[hash][extname]',
 				manualChunks(id) {
 					return Object.entries(CHUNKS).find(([, deps]) => deps.some(dep => id.includes(dep)))?.[0];
 				},
