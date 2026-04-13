@@ -18,6 +18,7 @@ export {
 	removeLayer,
 	renameLayer,
 	reorderLayer,
+	setLayerBounds,
 	setOpacity,
 	toggleVisibility,
 } from './slices/card.slice';

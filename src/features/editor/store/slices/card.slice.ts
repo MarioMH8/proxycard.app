@@ -81,6 +81,19 @@ const cardSlice = createSlice({
 			const toIndex = Math.max(0, Math.min(action.payload.toIndex, state.layers.length));
 			state.layers.splice(toIndex, 0, layer);
 		},
+		setLayerBounds(state, action: PayloadAction<{ bounds: Bounds; layerId: string }>) {
+			const layer = state.layers.find(l => l.id === action.payload.layerId);
+			if (!layer || !('bounds' in layer)) {
+				return;
+			}
+			const { height, width, x, y } = action.payload.bounds;
+			(layer as { bounds: Bounds }).bounds = {
+				height: Math.max(0, Math.min(1, height)),
+				width: Math.max(0, Math.min(1, width)),
+				x: Math.max(0, Math.min(1, x)),
+				y: Math.max(0, Math.min(1, y)),
+			};
+		},
 		setOpacity(state, action: PayloadAction<{ layerId: string; opacity: number }>) {
 			const layer = state.layers.find(l => l.id === action.payload.layerId);
 			if (!layer) {
@@ -99,6 +112,14 @@ const cardSlice = createSlice({
 });
 
 export type { CardState };
-export const { addFrameLayer, duplicateLayer, removeLayer, renameLayer, reorderLayer, setOpacity, toggleVisibility } =
-	cardSlice.actions;
+export const {
+	addFrameLayer,
+	duplicateLayer,
+	removeLayer,
+	renameLayer,
+	reorderLayer,
+	setLayerBounds,
+	setOpacity,
+	toggleVisibility,
+} = cardSlice.actions;
 export default cardSlice;

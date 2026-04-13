@@ -6,6 +6,8 @@
  *   - Panel shows opacity for a frame layer
  *   - setOpacity action clamps opacity to [0, 100]
  *   - Panel updates when selection changes (different layer selected)
+ *   - setLayerBounds action updates bounds in store with clamping
+ *   - Consecutive setLayerBounds dispatches for same layer collapse into one undo entry
  *
  * Because PropertiesPanel is a React component wired to the Redux store, we test
  * the underlying logic at the store level (pure Redux) — same pattern as layers.test.ts.
@@ -14,8 +16,8 @@
 
 import { beforeEach, describe, expect, it } from 'bun:test';
 
-import { resetUndoState } from '../store/middlewares/undo.middleware';
-import { addFrameLayer, removeLayer, setOpacity } from '../store/slices/card.slice';
+import { REDO_ACTION, resetUndoState, UNDO_ACTION } from '../store/middlewares/undo.middleware';
+import { addFrameLayer, removeLayer, setLayerBounds, setOpacity } from '../store/slices/card.slice';
 import { selectLayer } from '../store/slices/editor.slice';
 import createEditorStore from '../store/store';
 import { selectLayerById, selectLayers, selectSelectedLayer, selectSelectedLayerId } from '../store/store.selectors';
@@ -37,6 +39,8 @@ const FRAME_B = {
 	src: '/frames/m15/regular/blue.png',
 	tileId: 'tile-blue',
 };
+
+const INITIAL_BOUNDS = { height: 1, width: 1, x: 0, y: 0 };
 
 function getLayer(store: EditorStore, index: number) {
 	const layer = selectLayers(store.getState())[index];
@@ -192,5 +196,97 @@ describe('panel updates on selection change', () => {
 
 		expect(selectSelectedLayerId(store.getState())).toBeUndefined();
 		expect(selectSelectedLayer(store.getState())).toBeUndefined();
+	});
+});
+
+/*
+ * ---------------------------------------------------------------------------
+ * setLayerBounds — bounds inputs (X, Y, W, H) → store
+ * The component converts px → fraction before dispatch, but here we test the
+ * store action directly since we don't render the DOM.
+ * ---------------------------------------------------------------------------
+ */
+
+describe('bounds inputs dispatch setLayerBounds', () => {
+	it('setLayerBounds stores fractional bounds', () => {
+		store.dispatch(addFrameLayer({ ...FRAME_A, bounds: INITIAL_BOUNDS }));
+		const layerId = getLayer(store, 0).id;
+
+		store.dispatch(setLayerBounds({ bounds: { height: 0.5, width: 0.75, x: 0.1, y: 0.2 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		const b = (layer as { bounds?: { height: number; width: number; x: number; y: number } }).bounds;
+		expect(b?.x).toBe(0.1);
+		expect(b?.y).toBe(0.2);
+		expect(b?.width).toBe(0.75);
+		expect(b?.height).toBe(0.5);
+	});
+
+	it('setLayerBounds clamps x below 0 to 0', () => {
+		store.dispatch(addFrameLayer({ ...FRAME_A, bounds: INITIAL_BOUNDS }));
+		const layerId = getLayer(store, 0).id;
+
+		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, x: -0.5 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		expect((layer as { bounds?: { x: number } }).bounds?.x).toBe(0);
+	});
+
+	it('setLayerBounds clamps y above 1 to 1', () => {
+		store.dispatch(addFrameLayer({ ...FRAME_A, bounds: INITIAL_BOUNDS }));
+		const layerId = getLayer(store, 0).id;
+
+		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, y: 1.5 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		expect((layer as { bounds?: { y: number } }).bounds?.y).toBe(1);
+	});
+
+	it('setLayerBounds clamps width below 0 to 0', () => {
+		store.dispatch(addFrameLayer({ ...FRAME_A, bounds: INITIAL_BOUNDS }));
+		const layerId = getLayer(store, 0).id;
+
+		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, width: -1 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		expect((layer as { bounds?: { width: number } }).bounds?.width).toBe(0);
+	});
+
+	it('setLayerBounds clamps height above 1 to 1', () => {
+		store.dispatch(addFrameLayer({ ...FRAME_A, bounds: INITIAL_BOUNDS }));
+		const layerId = getLayer(store, 0).id;
+
+		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, height: 5 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		expect((layer as { bounds?: { height: number } }).bounds?.height).toBe(1);
+	});
+
+	it('setLayerBounds is undoable', () => {
+		store.dispatch(addFrameLayer({ ...FRAME_A, bounds: INITIAL_BOUNDS }));
+		const layerId = getLayer(store, 0).id;
+
+		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, x: 0.3 }, layerId }));
+		expect((selectLayerById(store.getState(), layerId) as { bounds?: { x: number } }).bounds?.x).toBe(0.3);
+
+		store.dispatch({ type: UNDO_ACTION });
+		expect((selectLayerById(store.getState(), layerId) as { bounds?: { x: number } }).bounds?.x).toBe(0);
+	});
+
+	it('consecutive setLayerBounds for same layer collapses into one undo entry', () => {
+		store.dispatch(addFrameLayer({ ...FRAME_A, bounds: INITIAL_BOUNDS }));
+		const layerId = getLayer(store, 0).id;
+
+		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, x: 0.1 }, layerId }));
+		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, x: 0.2 }, layerId }));
+		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, x: 0.3 }, layerId }));
+
+		// Single undo reverts all the way to original
+		store.dispatch({ type: UNDO_ACTION });
+		expect((selectLayerById(store.getState(), layerId) as { bounds?: { x: number } }).bounds?.x).toBe(0);
+
+		// Redo restores the final value
+		store.dispatch({ type: REDO_ACTION });
+		expect((selectLayerById(store.getState(), layerId) as { bounds?: { x: number } }).bounds?.x).toBe(0.3);
 	});
 });

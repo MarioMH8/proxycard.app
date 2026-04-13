@@ -8,6 +8,7 @@ import {
 	removeLayer,
 	renameLayer,
 	reorderLayer,
+	setLayerBounds,
 	setOpacity,
 	toggleVisibility,
 } from '../slices/card.slice';
@@ -36,7 +37,10 @@ const MAX_HISTORY = Number(import.meta.env.VITE_MAX_UNDO_HISTORY ?? 100);
  * into a single undo entry. The key is the action type, the value is the
  * payload field used to identify the target (e.g. 'layerId').
  */
-const COLLAPSIBLE_ACTIONS = new Map<string, string>([[setOpacity.type, 'layerId']]);
+const COLLAPSIBLE_ACTIONS = new Map<string, string>([
+	[setLayerBounds.type, 'layerId'],
+	[setOpacity.type, 'layerId'],
+]);
 
 interface PatchEntry {
 	/** Action type that produced this entry — used for collapse detection */
@@ -68,6 +72,7 @@ const UNDOABLE_ACTIONS = new Set<string>([
 	removeLayer.type,
 	renameLayer.type,
 	reorderLayer.type,
+	setLayerBounds.type,
 	setOpacity.type,
 	toggleLock.type,
 	toggleVisibility.type,

@@ -8,6 +8,7 @@ import {
 	removeLayer,
 	renameLayer,
 	reorderLayer,
+	setLayerBounds,
 	setOpacity,
 	toggleVisibility,
 } from './slices/card.slice';
@@ -174,6 +175,54 @@ describe('cardSlice', () => {
 
 		store.dispatch(setOpacity({ layerId, opacity: 500 }));
 		expect(selectLayerById(store.getState(), layerId)?.opacity).toBe(100);
+	});
+
+	it('should set layer bounds updating all four fields', () => {
+		store.dispatch(addFrameLayer(FRAME_PAYLOAD));
+		const layerId = firstLayerId(store);
+
+		store.dispatch(setLayerBounds({ bounds: { height: 0.5, width: 0.5, x: 0.1, y: 0.2 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		expect((layer as { bounds?: { height: number; width: number; x: number; y: number } }).bounds).toEqual({
+			height: 0.5,
+			width: 0.5,
+			x: 0.1,
+			y: 0.2,
+		});
+	});
+
+	it('should clamp setLayerBounds x and y to [0, 1]', () => {
+		store.dispatch(addFrameLayer(FRAME_PAYLOAD));
+		const layerId = firstLayerId(store);
+
+		store.dispatch(setLayerBounds({ bounds: { height: 0.5, width: 0.5, x: -1, y: 5 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		const bounds = (layer as { bounds?: { x: number; y: number } }).bounds;
+		expect(bounds?.x).toBe(0);
+		expect(bounds?.y).toBe(1);
+	});
+
+	it('should clamp setLayerBounds width and height to [0, 1]', () => {
+		store.dispatch(addFrameLayer(FRAME_PAYLOAD));
+		const layerId = firstLayerId(store);
+
+		store.dispatch(setLayerBounds({ bounds: { height: 99, width: -0.1, x: 0, y: 0 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		const bounds = (layer as { bounds?: { height: number; width: number } }).bounds;
+		expect(bounds?.width).toBe(0);
+		expect(bounds?.height).toBe(1);
+	});
+
+	it('should no-op setLayerBounds for a non-existent layer', () => {
+		store.dispatch(addFrameLayer(FRAME_PAYLOAD));
+		const before = selectLayers(store.getState());
+
+		store.dispatch(setLayerBounds({ bounds: { height: 0.5, width: 0.5, x: 0.1, y: 0.2 }, layerId: 'no-such-id' }));
+
+		expect(selectLayers(store.getState())).toEqual(before);
 	});
 });
 
@@ -400,6 +449,19 @@ describe('undo/redo middleware', () => {
 		expect(selectLayerById(store.getState(), layerId)?.opacity).toBe(100);
 	});
 
+	it('should undo setLayerBounds', () => {
+		store.dispatch(addFrameLayer({ ...FRAME_PAYLOAD, bounds: { height: 1, width: 1, x: 0, y: 0 } }));
+		const layerId = firstLayerId(store);
+
+		store.dispatch(setLayerBounds({ bounds: { height: 0.5, width: 0.5, x: 0.1, y: 0.2 }, layerId }));
+		const layer = selectLayerById(store.getState(), layerId);
+		expect((layer as { bounds?: { x: number } }).bounds?.x).toBe(0.1);
+
+		store.dispatch({ type: UNDO_ACTION });
+		const restored = selectLayerById(store.getState(), layerId);
+		expect((restored as { bounds?: { x: number } }).bounds?.x).toBe(0);
+	});
+
 	it('should undo toggleLock', () => {
 		store.dispatch(addFrameLayer(FRAME_PAYLOAD));
 		const layerId = firstLayerId(store);
@@ -610,5 +672,75 @@ describe('collapsible undo entries (setOpacity)', () => {
 
 		store.dispatch({ type: UNDO_ACTION });
 		expect(selectLayerById(store.getState(), layerId)?.opacity).toBe(100);
+	});
+});
+
+/*
+ * ---------------------------------------------------------------------------
+ * Collapsible actions — consecutive setLayerBounds for the same layer merges
+ * into a single undo entry so dragging bounds inputs doesn't flood the stack.
+ * ---------------------------------------------------------------------------
+ */
+
+describe('collapsible undo entries (setLayerBounds)', () => {
+	it('multiple consecutive setLayerBounds dispatches produce a single undo entry', () => {
+		const initialBounds = { height: 1, width: 1, x: 0, y: 0 };
+		store.dispatch(addFrameLayer({ ...FRAME_PAYLOAD, bounds: initialBounds }));
+		const layerId = firstLayerId(store);
+
+		// Simulate dragging the X input: 0 → 0.1 → 0.2 → 0.3
+		store.dispatch(setLayerBounds({ bounds: { ...initialBounds, x: 0.1 }, layerId }));
+		store.dispatch(setLayerBounds({ bounds: { ...initialBounds, x: 0.2 }, layerId }));
+		store.dispatch(setLayerBounds({ bounds: { ...initialBounds, x: 0.3 }, layerId }));
+
+		const layer = selectLayerById(store.getState(), layerId);
+		expect((layer as { bounds?: { x: number } }).bounds?.x).toBe(0.3);
+		expect(selectCanUndo()).toBe(true);
+
+		// One undo should revert all the way to the original x=0
+		store.dispatch({ type: UNDO_ACTION });
+		const restored = selectLayerById(store.getState(), layerId);
+		expect((restored as { bounds?: { x: number } }).bounds?.x).toBe(0);
+
+		// Only the addFrameLayer entry remains
+		store.dispatch({ type: UNDO_ACTION });
+		expect(selectLayers(store.getState())).toHaveLength(0);
+		expect(selectCanUndo()).toBe(false);
+	});
+
+	it('redo after collapsed setLayerBounds undo restores the final dragged value', () => {
+		const initialBounds = { height: 1, width: 1, x: 0, y: 0 };
+		store.dispatch(addFrameLayer({ ...FRAME_PAYLOAD, bounds: initialBounds }));
+		const layerId = firstLayerId(store);
+
+		store.dispatch(setLayerBounds({ bounds: { ...initialBounds, x: 0.1 }, layerId }));
+		store.dispatch(setLayerBounds({ bounds: { ...initialBounds, x: 0.2 }, layerId }));
+		store.dispatch(setLayerBounds({ bounds: { ...initialBounds, x: 0.3 }, layerId }));
+
+		store.dispatch({ type: UNDO_ACTION });
+		expect((selectLayerById(store.getState(), layerId) as { bounds?: { x: number } }).bounds?.x).toBe(0);
+
+		store.dispatch({ type: REDO_ACTION });
+		expect((selectLayerById(store.getState(), layerId) as { bounds?: { x: number } }).bounds?.x).toBe(0.3);
+	});
+
+	it('setLayerBounds on a different layer does NOT collapse with the previous entry', () => {
+		const initialBounds = { height: 1, width: 1, x: 0, y: 0 };
+		store.dispatch(addFrameLayer({ ...FRAME_PAYLOAD, bounds: initialBounds }));
+		store.dispatch(addFrameLayer({ ...FRAME_PAYLOAD, bounds: initialBounds, defaultName: 'Blue', name: 'Blue' }));
+		const layers = selectLayers(store.getState());
+		const layerAId = layers[0]?.id ?? '';
+		const layerBId = layers[1]?.id ?? '';
+
+		store.dispatch(setLayerBounds({ bounds: { ...initialBounds, x: 0.2 }, layerId: layerAId }));
+		store.dispatch(setLayerBounds({ bounds: { ...initialBounds, x: 0.4 }, layerId: layerBId }));
+
+		// Two separate entries — undoing once only reverts layerB
+		store.dispatch({ type: UNDO_ACTION });
+		expect((selectLayerById(store.getState(), layerAId) as { bounds?: { x: number } }).bounds?.x).toBe(0.2);
+		expect((selectLayerById(store.getState(), layerBId) as { bounds?: { x: number } }).bounds?.x).toBe(0);
+
+		store.dispatch({ type: UNDO_ACTION });
+		expect((selectLayerById(store.getState(), layerAId) as { bounds?: { x: number } }).bounds?.x).toBe(0);
 	});
 });
