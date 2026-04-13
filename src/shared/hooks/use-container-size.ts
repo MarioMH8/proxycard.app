@@ -17,7 +17,7 @@ function useContainerSize(initialSize: ContainerSize = INITIAL_SIZE): {
 	containerRef: RefObject<HTMLDivElement | null>;
 	size: ContainerSize;
 } {
-	const containerReference = useRef<HTMLDivElement>(undefined);
+	const containerReference = useRef<HTMLDivElement | null>(null);
 	const [size, setSize] = useState<ContainerSize>(initialSize);
 
 	useEffect(() => {

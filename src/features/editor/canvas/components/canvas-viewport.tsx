@@ -25,8 +25,7 @@ function CanvasViewport({ height, rendererReference, width }: CanvasViewportProp
 	const card = useEditorSelector(selectCard);
 	const zoom = useEditorSelector(selectZoom);
 	const pan = useEditorSelector(selectPan);
-
-	const containerReference = useRef<HTMLDivElement>(undefined);
+	const containerReference = useRef<HTMLDivElement | null>(null);
 
 	useZoomPan({ containerRef: containerReference });
 

@@ -18,7 +18,7 @@ const WHEEL_ZOOM_FACTOR = 0.001;
 
 interface UseZoomPanOptions {
 	/** Ref to the container element that receives pointer/wheel events. */
-	containerRef: RefObject<HTMLElement | undefined>;
+	containerRef: RefObject<HTMLElement | null>;
 }
 
 /**
