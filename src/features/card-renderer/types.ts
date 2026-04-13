@@ -6,6 +6,4 @@ export interface CardRendererReference {
 	exportPNG: (options?: { pixelRatio?: number }) => Promise<Blob>;
 	/** Get the underlying Konva Stage instance */
 	getStage: () => Konva.Stage | undefined;
-	/** Reset zoom/pan to fit-to-viewport */
-	resetTransform: () => void;
 }

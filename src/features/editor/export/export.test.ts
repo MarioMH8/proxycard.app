@@ -36,7 +36,6 @@ function createMockReference(blobResult?: Blob): { current: CardRendererReferenc
 		current: {
 			exportPNG: mockExportPNG,
 			getStage: mock(getStageStub),
-			resetTransform: mock(voidStub),
 		},
 	};
 }

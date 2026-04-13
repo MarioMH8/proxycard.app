@@ -66,21 +66,13 @@ const CardRenderer = forwardRef<CardRendererReference, CardRendererProps>(({ car
 
 	const getStage = useCallback((): Konva.Stage | undefined => stageReference.current ?? undefined, []);
 
-	const resetTransform = useCallback((): void => {
-		/*
-		 * No-op: zoom/pan live in the parent (CanvasViewport / Redux).
-		 * The parent should dispatch resetView() to reset zoom and pan.
-		 */
-	}, []);
-
 	useImperativeHandle(
 		reference,
 		() => ({
 			exportPNG,
 			getStage,
-			resetTransform,
 		}),
-		[exportPNG, getStage, resetTransform]
+		[exportPNG, getStage]
 	);
 
 	const renderOrder = computeRenderOrder(card.layers);
