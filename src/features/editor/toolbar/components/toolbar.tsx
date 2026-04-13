@@ -1,7 +1,8 @@
 import Button from '@components/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@components/tooltip';
 import type { CardRendererReference } from '@features/card-renderer';
-import { Download, Redo2, Search, Undo2, ZoomIn, ZoomOut } from 'lucide-react';
+import { modifierKey } from '@shared/platform';
+import { Command, Download, Redo2, Undo2, ZoomIn, ZoomOut } from 'lucide-react';
 import type { ReactNode, RefObject } from 'react';
 
 import { useExport } from '../../export';
@@ -75,7 +76,7 @@ function LayerToolbar({ rendererReference }: ToolbarProps): ReactNode {
 							/>
 						</Button>
 					</TooltipTrigger>
-					<TooltipContent>Undo (Cmd+Z)</TooltipContent>
+					<TooltipContent>Undo (${modifierKey()}+Z)</TooltipContent>
 				</Tooltip>
 
 				<Tooltip>
@@ -95,7 +96,7 @@ function LayerToolbar({ rendererReference }: ToolbarProps): ReactNode {
 							/>
 						</Button>
 					</TooltipTrigger>
-					<TooltipContent>Redo (Cmd+Shift+Z)</TooltipContent>
+					<TooltipContent>Redo (${modifierKey()}+Shift+Z)</TooltipContent>
 				</Tooltip>
 
 				<LayerToolbarSeparator />
@@ -196,13 +197,13 @@ function LayerToolbar({ rendererReference }: ToolbarProps): ReactNode {
 								dispatch(setCommandPaletteOpen({ open: true }));
 							}}
 							transparent>
-							<Search
+							<Command
 								aria-hidden='true'
 								className='h-4 w-4'
 							/>
 						</Button>
 					</TooltipTrigger>
-					<TooltipContent>Commands (Cmd+K)</TooltipContent>
+					<TooltipContent>Commands (${modifierKey()}+K)</TooltipContent>
 				</Tooltip>
 			</menu>
 		</div>
