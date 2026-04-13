@@ -54,7 +54,7 @@ function LayerToolbar({ rendererReference }: ToolbarProps): ReactNode {
 	const zoomPercent = `${String(Math.round(effectiveZoom))}%`;
 
 	return (
-		<div className='pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center'>
+		<div className='pointer-events-none absolute inset-x-0 bottom-[calc(3.5rem+0.75rem)] z-10 flex justify-center xl:bottom-6'>
 			<menu
 				aria-label='Editor toolbar'
 				className='pointer-events-auto px-2 py-1.5 flex items-center gap-1 rounded-xl border border-foreground-200 bg-foreground-50/90 dark:border-foreground-700 dark:bg-foreground-900/90 shadow-lg backdrop-blur-md'>

@@ -29,7 +29,7 @@ function PropertiesPanel(): ReactNode {
 		return (
 			<section
 				aria-label='Layer properties'
-				className='px-8'>
+				className='px-4 xl:px-8'>
 				<Heading
 					dimension='xs'
 					heading='h3'

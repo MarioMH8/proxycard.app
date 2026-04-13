@@ -56,7 +56,7 @@ function BottomDrawer({ children }: BottomDrawerProps): ReactNode {
 				className={[
 					'fixed bottom-0 left-0 right-0 z-30 xl:hidden',
 					'rounded-t-2xl border-t border-foreground-200 dark:border-foreground-700',
-					'bg-background shadow-2xl',
+					'bg-foreground-50 dark:bg-foreground-950 shadow-2xl',
 					'transition-transform duration-300 ease-in-out',
 					isOpen ? 'translate-y-0' : 'translate-y-[calc(100%-3.5rem)]',
 				].join(' ')}
@@ -110,7 +110,7 @@ function BottomDrawer({ children }: BottomDrawerProps): ReactNode {
 						isOpen ? 'max-h-[60dvh] opacity-100' : 'max-h-0 opacity-0 pointer-events-none',
 					].join(' ')}
 					id='bottom-drawer-content'>
-					<div className='flex flex-col gap-4 pb-8 pt-2'>{children}</div>
+					<div className='flex flex-col gap-6 px-0 pb-8 pt-2'>{children}</div>
 				</div>
 			</div>
 		</>
