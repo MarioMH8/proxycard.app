@@ -8,6 +8,7 @@ import { CanvasEmptyState, CanvasViewport } from './canvas';
 import { CommandPalette, useCommands } from './command-palette';
 import { FramePickerDialog } from './frame-picker';
 import { LayersPanel } from './layers';
+import { PropertiesPanel } from './properties';
 import {
 	createEditorStore,
 	selectIsCommandPaletteOpen,
@@ -87,6 +88,7 @@ function EditorLayoutInner(): ReactNode {
 				aria-label='Layers sidebar'
 				className='hidden w-2/5 min-w-lg shrink-0 overflow-y-auto xl:flex xl:flex-col'>
 				<LayersPanel />
+				<PropertiesPanel />
 			</aside>
 
 			{/* Frame picker dialog */}
