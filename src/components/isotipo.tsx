@@ -18,7 +18,7 @@ const variants = cva({
 
 type IsotipoProperties = Omit<ComponentPropsWithRef<'img'>, 'src' | 'srcSet'> & VariantProperties<typeof variants>;
 
-function Isotipo({ alt = 'Card Conjurer isotipo', className, dimension, ...properties }: IsotipoProperties): ReactNode {
+function Isotipo({ alt = 'ProxyStudio isotipo', className, dimension, ...properties }: IsotipoProperties): ReactNode {
 	return (
 		<img
 			alt={alt}

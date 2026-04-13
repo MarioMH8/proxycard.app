@@ -34,7 +34,7 @@ function Logotipo({ asChild = false, className, dimension, ...properties }: Logo
 		<Comp
 			className={cn(variants({ className, dimension }), className)}
 			{...properties}>
-			Card<span className={cn(accentVariants())}>Conjurer</span>
+			Proxy<span className={cn(accentVariants())}>Studio</span>
 		</Comp>
 	);
 }
