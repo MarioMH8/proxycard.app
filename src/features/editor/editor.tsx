@@ -1,7 +1,7 @@
 import type { CardRendererReference } from '@features/card-renderer';
 import useContainerSize from '@shared/hooks/use-container-size';
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { Provider } from 'react-redux';
 
 import { CanvasEmptyState, CanvasViewport } from './canvas';
@@ -15,6 +15,7 @@ import {
 	selectLayers,
 	setCommandPaletteOpen,
 	setFramePickerOpen,
+	useCommandPaletteShortcut,
 	useEditorDispatch,
 	useEditorSelector,
 	useUndoRedoShortcuts,
@@ -35,22 +36,7 @@ function EditorLayoutInner(): ReactNode {
 	const { containerRef: canvasContainerReference, size: viewportSize } = useContainerSize();
 
 	useUndoRedoShortcuts();
-
-	// Global Cmd+K / Ctrl+K shortcut to open command palette
-	useEffect(() => {
-		function handleKeyDown(event: KeyboardEvent): void {
-			if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-				event.preventDefault();
-				dispatch(setCommandPaletteOpen({ open: true }));
-			}
-		}
-
-		globalThis.addEventListener('keydown', handleKeyDown);
-
-		return () => {
-			globalThis.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [dispatch]);
+	useCommandPaletteShortcut();
 
 	const { commands } = useCommands({ rendererReference });
 
