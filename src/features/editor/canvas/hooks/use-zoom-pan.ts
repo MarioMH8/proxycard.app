@@ -87,7 +87,10 @@ function useZoomPan({ containerRef }: UseZoomPanOptions): void {
 		event.preventDefault();
 		isPanningReference.current = true;
 		lastPointerReference.current = { x: event.clientX, y: event.clientY };
-		(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+
+		const target = event.currentTarget as HTMLElement;
+		target.setPointerCapture(event.pointerId);
+		target.style.cursor = 'grabbing';
 	}, []);
 
 	// ---- Middle-click pan: pointermove ----
@@ -115,6 +118,7 @@ function useZoomPan({ containerRef }: UseZoomPanOptions): void {
 
 		isPanningReference.current = false;
 		lastPointerReference.current = undefined;
+		(event.currentTarget as HTMLElement).style.cursor = '';
 	}, []);
 
 	// ---- Touch: two-finger pan + pinch zoom ----
