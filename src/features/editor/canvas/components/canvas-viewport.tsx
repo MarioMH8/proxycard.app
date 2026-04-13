@@ -1,10 +1,18 @@
 import { CARD_HEIGHT, CARD_WIDTH } from '@domain';
-import type { CardRendererReference } from '@features/card-renderer';
+import type { CardRendererReference, ImageLoadStatus } from '@features/card-renderer';
 import { CardRenderer } from '@features/card-renderer';
 import type { ReactNode, RefObject } from 'react';
-import { useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
-import { selectCard, selectLayers, selectPan, selectZoom, useEditorSelector } from '../../store';
+import {
+	selectCard,
+	selectLayers,
+	selectPan,
+	selectZoom,
+	setImageStatus,
+	useEditorDispatch,
+	useEditorSelector,
+} from '../../store';
 import useZoomPan from '../hooks/use-zoom-pan';
 import { computeScale, computeTranslate } from '../utilities';
 import CanvasEmptyState from './canvas-empty-state';
@@ -28,6 +36,7 @@ interface CanvasViewportProps {
  * so it follows zoom/pan and the shadow only appears when there is content.
  */
 function CanvasViewport({ height, rendererReference, width }: CanvasViewportProps): ReactNode {
+	const dispatch = useEditorDispatch();
 	const card = useEditorSelector(selectCard);
 	const layers = useEditorSelector(selectLayers);
 	const zoom = useEditorSelector(selectZoom);
@@ -35,6 +44,13 @@ function CanvasViewport({ height, rendererReference, width }: CanvasViewportProp
 	const containerReference = useRef<HTMLDivElement | null>(null);
 
 	useZoomPan({ containerRef: containerReference });
+
+	const handleImageStatusChange = useCallback(
+		(layerId: string, status: ImageLoadStatus) => {
+			dispatch(setImageStatus({ layerId, status }));
+		},
+		[dispatch]
+	);
 
 	const scale = useMemo(() => computeScale(width, height, zoom ?? 100), [width, height, zoom]);
 
@@ -71,6 +87,7 @@ function CanvasViewport({ height, rendererReference, width }: CanvasViewportProp
 				{hasLayers ? (
 					<CardRenderer
 						card={card}
+						onImageStatusChange={handleImageStatusChange}
 						ref={rendererReference}
 					/>
 				) : (

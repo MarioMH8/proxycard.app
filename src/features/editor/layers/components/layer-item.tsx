@@ -4,7 +4,7 @@ import type { Layer } from '@domain';
 import { cn } from '@shared/cva';
 import { Copy, Eye, EyeOff, GripVertical, Image, Lock, Trash2, Type, Unlock } from 'lucide-react';
 import type { KeyboardEvent, ReactNode, Ref } from 'react';
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import LayerNameEditor from './layer-name-editor';
 import LayerThumbnail from './layer-thumbnail';
@@ -165,6 +165,7 @@ function LayerItem({
 					<div className='h-10 w-7 shrink-0 animate-pulse rounded bg-foreground-300 dark:bg-foreground-700' />
 				) : (
 					<LayerThumbnail
+						index={index}
 						isDragging={isDragging}
 						layer={layer}
 					/>
@@ -303,5 +304,7 @@ function LayerItem({
 
 LayerItem.displayName = 'LayerItem';
 
+const MemoLayerItem = memo(LayerItem);
+
 export type { LayerImageStatus, LayerItemProps, RowProps };
-export default LayerItem;
+export default MemoLayerItem;

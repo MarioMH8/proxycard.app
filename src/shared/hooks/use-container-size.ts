@@ -12,6 +12,7 @@ const INITIAL_SIZE: ContainerSize = { height: 0, width: 0 };
  * Observes the size of a DOM element via ResizeObserver.
  * Returns a ref to attach to the element and its current { width, height }.
  * Initial size is read synchronously on mount; subsequent changes are tracked reactively.
+ * Updates are batched via requestAnimationFrame to avoid excessive re-renders during resize.
  */
 function useContainerSize(initialSize: ContainerSize = INITIAL_SIZE): {
 	containerRef: RefObject<HTMLDivElement | null>;
@@ -19,6 +20,7 @@ function useContainerSize(initialSize: ContainerSize = INITIAL_SIZE): {
 } {
 	const containerReference = useRef<HTMLDivElement | null>(null);
 	const [size, setSize] = useState<ContainerSize>(initialSize);
+	const rafReference = useRef<number | undefined>(undefined);
 
 	useEffect(() => {
 		const container = containerReference.current;
@@ -33,8 +35,16 @@ function useContainerSize(initialSize: ContainerSize = INITIAL_SIZE): {
 			const entry = entries[0];
 
 			if (entry) {
-				const { height, width } = entry.contentRect;
-				setSize({ height, width });
+				// Cancel any pending RAF to ensure only the latest size is applied
+				if (rafReference.current !== undefined) {
+					cancelAnimationFrame(rafReference.current);
+				}
+
+				rafReference.current = requestAnimationFrame(() => {
+					const { height, width } = entry.contentRect;
+					setSize({ height, width });
+					rafReference.current = undefined;
+				});
 			}
 		});
 
@@ -42,6 +52,10 @@ function useContainerSize(initialSize: ContainerSize = INITIAL_SIZE): {
 
 		return () => {
 			observer.disconnect();
+
+			if (rafReference.current !== undefined) {
+				cancelAnimationFrame(rafReference.current);
+			}
 		};
 	}, []);
 

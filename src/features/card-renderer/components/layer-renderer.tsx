@@ -1,7 +1,8 @@
 import type { Layer } from '@domain';
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { Image as KonvaImage } from 'react-konva';
 
+import type { ImageLoadStatus } from './use-layer-image';
 import useLayerImage from './use-layer-image';
 
 interface LayerRendererProps {
@@ -11,18 +12,26 @@ interface LayerRendererProps {
 	cardWidth: number;
 	/** Domain Layer type */
 	layer: Layer;
+	/** Optional callback when image load status changes (for error indicators in layer panel) */
+	onImageStatusChange?: ((layerId: string, status: ImageLoadStatus) => void) | undefined;
 }
 
 function FrameLayerNode({
 	cardHeight,
 	cardWidth,
 	layer,
+	onImageStatusChange,
 }: {
 	cardHeight: number;
 	cardWidth: number;
 	layer: Extract<Layer, { type: 'frame' }>;
+	onImageStatusChange?: ((layerId: string, status: ImageLoadStatus) => void) | undefined;
 }) {
-	const image = useLayerImage(layer.src);
+	const { image, status } = useLayerImage(layer.src);
+
+	useEffect(() => {
+		onImageStatusChange?.(layer.id, status);
+	}, [layer.id, status, onImageStatusChange]);
 
 	if (!image) {
 		return;
@@ -50,7 +59,7 @@ function FrameLayerNode({
  * For 'frame': renders Konva.Image with opacity.
  * For other types: renders placeholder (not creatable in v1).
  */
-function LayerRendererInner({ cardHeight, cardWidth, layer }: LayerRendererProps) {
+function LayerRendererInner({ cardHeight, cardWidth, layer, onImageStatusChange }: LayerRendererProps) {
 	if (!layer.visible) {
 		return;
 	}
@@ -70,6 +79,7 @@ function LayerRendererInner({ cardHeight, cardWidth, layer }: LayerRendererProps
 					cardHeight={cardHeight}
 					cardWidth={cardWidth}
 					layer={layer}
+					onImageStatusChange={onImageStatusChange}
 				/>
 			);
 		}

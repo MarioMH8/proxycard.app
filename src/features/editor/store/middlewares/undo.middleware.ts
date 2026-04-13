@@ -173,83 +173,111 @@ function pushOrCollapse(
 	}
 }
 
-const undoMiddleware: Middleware = store => next => action => {
-	const actionObject = action as { payload?: unknown; type: string };
+const undoMiddleware: Middleware = store => next => {
+	/*
+	 * Guard against re-entrant undo/redo calls.
+	 * Rapid keyboard repeat or programmatic dispatch could fire before the
+	 * previous undo/redo finishes updating state, which would cause patch
+	 * application to produce unexpected results.
+	 */
+	let isProcessing = false;
 
-	// State replacement (dispatched by undo/redo) — pass through to root reducer
-	if (actionObject.type === REPLACE_STATE_ACTION) {
-		return next(action);
-	}
+	return action => {
+		const actionObject = action as { payload?: unknown; type: string };
 
-	// Undo: pop from past, apply inverse patches, push to future
-	if (actionObject.type === UNDO_ACTION) {
-		const entry = undoState.past.pop();
-		if (!entry) {
-			return;
+		// State replacement (dispatched by undo/redo) — pass through to root reducer
+		if (actionObject.type === REPLACE_STATE_ACTION) {
+			return next(action);
 		}
 
-		const currentState = store.getState() as Record<string, unknown>;
-		const undoneState = applyPatches(currentState, entry.undo);
-
-		undoState.future.push(entry);
-		updateFlags();
-
-		return next({ payload: undoneState, type: REPLACE_STATE_ACTION });
-	}
-
-	// Redo: pop from future, apply forward patches, push to past
-	if (actionObject.type === REDO_ACTION) {
-		const entry = undoState.future.pop();
-		if (!entry) {
-			return;
-		}
-
-		const currentState = store.getState() as Record<string, unknown>;
-		const redoneState = applyPatches(currentState, entry.redo);
-
-		undoState.past.push(entry);
-		updateFlags();
-
-		return next({ payload: redoneState, type: REPLACE_STATE_ACTION });
-	}
-
-	// For undoable actions: let reducer handle it, then capture patches
-	if (UNDOABLE_ACTIONS.has(actionObject.type)) {
-		const stateBefore = store.getState() as Record<string, unknown>;
-
-		const result = next(action);
-
-		const stateAfter = store.getState() as Record<string, unknown>;
-
-		// Generate patches by diffing before/after state through Immer
-		try {
-			const [, patches, inversePatches] = produceWithPatches(stateBefore, draft => {
-				deepAssign(draft as Record<string, unknown>, stateAfter);
-			});
-
-			if (patches.length > 0) {
-				// New action clears future stack
-				undoState.future = [];
-
-				const collapseField = COLLAPSIBLE_ACTIONS.get(actionObject.type);
-				const rawCollapseKey =
-					collapseField === undefined
-						? undefined
-						: (actionObject.payload as Record<string, unknown>)[collapseField];
-				const collapseKey = typeof rawCollapseKey === 'string' ? rawCollapseKey : undefined;
-
-				pushOrCollapse(patches, inversePatches, actionObject.type, collapseKey);
-				updateFlags();
+		// Undo: pop from past, apply inverse patches, push to future
+		if (actionObject.type === UNDO_ACTION) {
+			if (isProcessing) {
+				return;
 			}
-		} catch {
-			// Patch generation failure — action already applied, just skip undo tracking
+
+			const entry = undoState.past.pop();
+			if (!entry) {
+				return;
+			}
+
+			isProcessing = true;
+			try {
+				const currentState = store.getState() as Record<string, unknown>;
+				const undoneState = applyPatches(currentState, entry.undo);
+
+				undoState.future.push(entry);
+				updateFlags();
+
+				return next({ payload: undoneState, type: REPLACE_STATE_ACTION });
+			} finally {
+				isProcessing = false;
+			}
 		}
 
-		return result;
-	}
+		// Redo: pop from future, apply forward patches, push to past
+		if (actionObject.type === REDO_ACTION) {
+			if (isProcessing) {
+				return;
+			}
 
-	// Non-undoable actions pass through unchanged
-	return next(action);
+			const entry = undoState.future.pop();
+			if (!entry) {
+				return;
+			}
+
+			isProcessing = true;
+			try {
+				const currentState = store.getState() as Record<string, unknown>;
+				const redoneState = applyPatches(currentState, entry.redo);
+
+				undoState.past.push(entry);
+				updateFlags();
+
+				return next({ payload: redoneState, type: REPLACE_STATE_ACTION });
+			} finally {
+				isProcessing = false;
+			}
+		}
+
+		// For undoable actions: let reducer handle it, then capture patches
+		if (UNDOABLE_ACTIONS.has(actionObject.type)) {
+			const stateBefore = store.getState() as Record<string, unknown>;
+
+			const result = next(action);
+
+			const stateAfter = store.getState() as Record<string, unknown>;
+
+			// Generate patches by diffing before/after state through Immer
+			try {
+				const [, patches, inversePatches] = produceWithPatches(stateBefore, draft => {
+					deepAssign(draft as Record<string, unknown>, stateAfter);
+				});
+
+				if (patches.length > 0) {
+					// New action clears future stack
+					undoState.future = [];
+
+					const collapseField = COLLAPSIBLE_ACTIONS.get(actionObject.type);
+					const rawCollapseKey =
+						collapseField === undefined
+							? undefined
+							: (actionObject.payload as Record<string, unknown>)[collapseField];
+					const collapseKey = typeof rawCollapseKey === 'string' ? rawCollapseKey : undefined;
+
+					pushOrCollapse(patches, inversePatches, actionObject.type, collapseKey);
+					updateFlags();
+				}
+			} catch {
+				// Patch generation failure — action already applied, just skip undo tracking
+			}
+
+			return result;
+		}
+
+		// Non-undoable actions pass through unchanged
+		return next(action);
+	};
 };
 
 export { getUndoState, REDO_ACTION, REPLACE_STATE_ACTION, resetUndoState, UNDO_ACTION };

@@ -3,7 +3,7 @@ import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, us
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import type { ReactNode } from 'react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
@@ -107,14 +107,17 @@ function LayerList(): ReactNode {
 		[dispatch, selectedLayerId]
 	);
 
-	if (layers.length > LAYER_WARNING_THRESHOLD && !hasWarnedReference.current) {
-		hasWarnedReference.current = true;
-		toast.warning('Performance may be affected with many layers.');
-	}
+	// Show a warning toast when the layer count exceeds the threshold
+	useEffect(() => {
+		if (layers.length > LAYER_WARNING_THRESHOLD && !hasWarnedReference.current) {
+			hasWarnedReference.current = true;
+			toast.warning('Performance may be affected with many layers.');
+		}
 
-	if (layers.length <= LAYER_WARNING_THRESHOLD) {
-		hasWarnedReference.current = false;
-	}
+		if (layers.length <= LAYER_WARNING_THRESHOLD) {
+			hasWarnedReference.current = false;
+		}
+	}, [layers.length]);
 
 	return layers.length === 0 ? undefined : (
 		<>

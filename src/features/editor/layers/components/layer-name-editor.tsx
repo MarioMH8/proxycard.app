@@ -1,6 +1,6 @@
 import Input from '@components/input';
 import type { KeyboardEvent, ReactNode } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 interface LayerNameEditorProps {
 	/** The default name to revert to when an empty value is submitted */
@@ -88,5 +88,7 @@ function LayerNameEditor({ defaultName, isEditing, name, onCancel, onConfirm }: 
 
 LayerNameEditor.displayName = 'LayerNameEditor';
 
+const MemoLayerNameEditor = memo(LayerNameEditor);
+
 export type { LayerNameEditorProps };
-export default LayerNameEditor;
+export default MemoLayerNameEditor;

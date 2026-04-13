@@ -21,8 +21,8 @@ function LayersPanel(): ReactNode {
 			{/* Header */}
 			<LayersHeader />
 
-			{/* Content */}
-			<div className='p-2 rounded-xl border border-foreground-300 bg-foreground-200 shadow-inner dark:border-foreground-800 dark:bg-foreground-900'>
+			{/* Content — scrollable container with max height for 50+ layer performance */}
+			<div className='max-h-96 overflow-y-auto overscroll-contain p-2 rounded-xl border border-foreground-300 bg-foreground-200 shadow-inner dark:border-foreground-800 dark:bg-foreground-900'>
 				{layers.length === 0 ? <LayersEmptyState /> : <LayerList />}
 			</div>
 		</div>

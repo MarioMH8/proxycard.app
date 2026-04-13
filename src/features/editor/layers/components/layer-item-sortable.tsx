@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Layer } from '@domain';
 import type { ReactNode } from 'react';
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
 import { selectImageStatus, selectIsLayerLocked, selectSelectedLayerId, useEditorSelector } from '../../store';
 import LayerItem from './layer-item';
@@ -26,6 +26,8 @@ interface LayerItemSortableProps {
  *
  * Uses setActivatorNodeRef so only the drag handle triggers DnD,
  * leaving clicks on the rest of the row unambiguous.
+ *
+ * Callbacks are stabilized with useCallback to preserve LayerItem's React.memo.
  */
 function LayerItemSortable({
 	index,
@@ -55,6 +57,33 @@ function LayerItemSortable({
 		[transform, transition]
 	);
 
+	const handleDuplicate = useCallback(() => {
+		onDuplicate(layer.id);
+	}, [layer.id, onDuplicate]);
+
+	const handleRemove = useCallback(() => {
+		onRemove(layer.id);
+	}, [layer.id, onRemove]);
+
+	const handleRename = useCallback(
+		(name: string) => {
+			onRename(layer.id, name);
+		},
+		[layer.id, onRename]
+	);
+
+	const handleSelect = useCallback(() => {
+		onSelect(layer.id);
+	}, [layer.id, onSelect]);
+
+	const handleToggleLock = useCallback(() => {
+		onToggleLock(layer.id);
+	}, [layer.id, onToggleLock]);
+
+	const handleToggleVisibility = useCallback(() => {
+		onToggleVisibility(layer.id);
+	}, [layer.id, onToggleVisibility]);
+
 	return (
 		<div
 			ref={setNodeRef}
@@ -67,25 +96,13 @@ function LayerItemSortable({
 				isLocked={isLocked}
 				isSelected={isSelected}
 				layer={layer}
-				onDuplicate={() => {
-					onDuplicate(layer.id);
-				}}
+				onDuplicate={handleDuplicate}
 				onKeyboardReorder={onKeyboardReorder}
-				onRemove={() => {
-					onRemove(layer.id);
-				}}
-				onRename={name => {
-					onRename(layer.id, name);
-				}}
-				onSelect={() => {
-					onSelect(layer.id);
-				}}
-				onToggleLock={() => {
-					onToggleLock(layer.id);
-				}}
-				onToggleVisibility={() => {
-					onToggleVisibility(layer.id);
-				}}
+				onRemove={handleRemove}
+				onRename={handleRename}
+				onSelect={handleSelect}
+				onToggleLock={handleToggleLock}
+				onToggleVisibility={handleToggleVisibility}
 				rowProps={{ ...attributes }}
 			/>
 		</div>
