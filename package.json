@@ -24,6 +24,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
+		"check:bundle": "bun scripts/check-bundle-size.ts",
 		"commitlint": "commitlint --edit",
 		"dev": "vite",
 		"generate:thumbs": "bun scripts/generate-thumbs.ts",
