@@ -1,3 +1,4 @@
+/* eslint-disable perfectionist/sort-objects */
 import path from 'node:path';
 
 import tailwindcss from '@tailwindcss/vite';
@@ -9,7 +10,13 @@ import { generateAllThumbs } from './scripts/generate-thumbs.library';
 
 const CHUNKS: Record<string, string[]> = {
 	canvas: ['konva'],
-	dnd: ['@dnd-kit'],
+	dnd: ['dnd'],
+	lucide: ['lucide'],
+	radix: ['radix'],
+	redux: ['redux'],
+	sonner: ['sonner'],
+	vaul: ['vaul'],
+	react: ['react', 'react-dom'],
 };
 
 const PUBLIC_ROOT = path.resolve(import.meta.dirname, 'public');
