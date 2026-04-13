@@ -4,9 +4,9 @@ import type { ReactNode } from 'react';
 import { useCallback, useMemo, useRef } from 'react';
 import { Provider } from 'react-redux';
 
+import { BottomDrawer } from './bottom-drawer';
 import { CanvasViewport } from './canvas';
 import { CommandPalette, useCommands } from './command-palette';
-import BottomDrawer from './components/bottom-drawer';
 import { FramePickerDialog } from './frame-picker';
 import { LayersPanel } from './layers';
 import { PropertiesPanel } from './properties';

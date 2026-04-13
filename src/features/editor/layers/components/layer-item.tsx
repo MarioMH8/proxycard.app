@@ -181,7 +181,7 @@ function LayerItem({
 
 			{/* Layer name (inline editable on double-click) */}
 			<div
-				className='min-w-0 flex-1 cursor-pointer'
+				className='min-w-0 flex-1 cursor-pointer overflow-x-hidden'
 				onClick={onSelect}
 				onDoubleClick={handleDoubleClick}
 				role='presentation'>

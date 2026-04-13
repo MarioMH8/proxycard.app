@@ -2,7 +2,7 @@ import Button from '@components/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@components/tooltip';
 import type { CardRendererReference } from '@features/card-renderer';
 import { modifierKey } from '@shared/platform';
-import { Command, Download, Redo2, Undo2, ZoomIn, ZoomOut } from 'lucide-react';
+import { Command, Download, Layers, Redo2, Undo2, ZoomIn, ZoomOut } from 'lucide-react';
 import type { ReactNode, RefObject } from 'react';
 
 import { useExport } from '../../export';
@@ -11,7 +11,9 @@ import {
 	resetView,
 	selectCanRedo,
 	selectCanUndo,
+	selectIsBottomDrawerOpen,
 	selectZoom,
+	setBottomDrawerOpen,
 	setCommandPaletteOpen,
 	setZoom,
 	UNDO_ACTION,
@@ -40,7 +42,7 @@ function LayerToolbarSeparator(): ReactNode {
 
 /**
  * Editor LayerToolbar — modern floating pill design.
- * Groups: history (undo/redo) | zoom | export.
+ * Groups: history (undo/redo) | zoom | export | layers (mobile) | commands.
  * Rendered as a centered pill overlaying the bottom of the canvas.
  */
 function LayerToolbar({ rendererReference }: ToolbarProps): ReactNode {
@@ -48,13 +50,14 @@ function LayerToolbar({ rendererReference }: ToolbarProps): ReactNode {
 	const canUndo = useEditorSelector(selectCanUndo);
 	const canRedo = useEditorSelector(selectCanRedo);
 	const zoom = useEditorSelector(selectZoom);
+	const isDrawerOpen = useEditorSelector(selectIsBottomDrawerOpen);
 	const { exportPNG, isExporting } = useExport({ rendererReference });
 
 	const effectiveZoom = zoom ?? ZOOM_DEFAULT;
 	const zoomPercent = `${String(Math.round(effectiveZoom))}%`;
 
 	return (
-		<div className='pointer-events-none absolute inset-x-0 bottom-[calc(3.5rem+0.75rem)] z-10 flex justify-center xl:bottom-6'>
+		<div className='pointer-events-none absolute inset-x-0 bottom-17 z-10 flex justify-center xl:bottom-6'>
 			<menu
 				aria-label='Editor toolbar'
 				className='pointer-events-auto px-2 py-1.5 flex items-center gap-1 rounded-xl border border-foreground-200 bg-foreground-50/90 dark:border-foreground-700 dark:bg-foreground-900/90 shadow-lg backdrop-blur-md'>
@@ -185,6 +188,28 @@ function LayerToolbar({ rendererReference }: ToolbarProps): ReactNode {
 				</Tooltip>
 
 				<LayerToolbarSeparator />
+
+				{/* Layers drawer toggle — mobile only */}
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							aria-expanded={isDrawerOpen}
+							aria-label={isDrawerOpen ? 'Close layers drawer' : 'Open layers drawer'}
+							className='xl:hidden'
+							dimension='sm'
+							icon
+							onClick={() => {
+								dispatch(setBottomDrawerOpen({ open: !isDrawerOpen }));
+							}}
+							transparent>
+							<Layers
+								aria-hidden='true'
+								className='h-4 w-4'
+							/>
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>Layers</TooltipContent>
+				</Tooltip>
 
 				{/* Command palette */}
 				<Tooltip>
