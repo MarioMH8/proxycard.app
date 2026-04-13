@@ -1,4 +1,10 @@
-import { Command } from 'cmdk';
+import {
+	CommandPaletteDialog,
+	CommandPaletteEmpty,
+	CommandPaletteInput,
+	CommandPaletteItem,
+	CommandPaletteList,
+} from '@components/command-palette';
 import type { ReactNode } from 'react';
 
 import type { Command as CommandDefinition } from '../hooks/use-commands';
@@ -31,50 +37,28 @@ function CommandPalette({ commands, onOpenChange, open }: CommandPaletteProps): 
 	}
 
 	return (
-		<Command.Dialog
-			contentClassName='fixed inset-x-4 top-[20%] z-20 mx-auto max-w-xl overflow-hidden rounded-xl border border-foreground-200 bg-foreground-50 shadow-2xl dark:border-foreground-700 dark:bg-foreground-900'
+		<CommandPaletteDialog
 			onOpenChange={onOpenChange}
-			open={open}
-			overlayClassName='fixed inset-0 z-20 bg-black/40 backdrop-blur-sm'>
-			{/* Search input */}
-			<div className='flex items-center border-b border-foreground-200 px-3 dark:border-foreground-700'>
-				<Command.Input
-					className='flex-1 bg-transparent py-3 text-sm text-foreground-900 placeholder:text-foreground-400 focus:outline-none dark:text-foreground-50 dark:placeholder:text-foreground-500'
-					placeholder='Search actions…'
-				/>
-			</div>
+			open={open}>
+			<CommandPaletteInput />
 
-			{/* Results list */}
-			<Command.List className='max-h-72 overflow-y-auto py-2'>
-				<Command.Empty className='py-6 text-center text-sm text-foreground-500'>
-					No actions found.
-				</Command.Empty>
+			<CommandPaletteList>
+				<CommandPaletteEmpty />
 
-				{commands.map(command => {
-					const isDisabled = command.disabled?.() ?? false;
-
-					return (
-						<Command.Item
-							className='flex cursor-pointer items-center justify-between px-3 py-2 text-sm aria-selected:bg-foreground-100 dark:aria-selected:bg-foreground-800 aria-disabled:pointer-events-none aria-disabled:opacity-40'
-							disabled={isDisabled}
-							key={command.id}
-							onSelect={() => {
-								handleSelect(command);
-							}}
-							value={command.label}>
-							<span className='font-medium text-foreground-900 dark:text-foreground-50'>
-								{command.label}
-							</span>
-							{command.shortcut !== undefined && (
-								<kbd className='ml-auto rounded bg-foreground-200 px-1.5 py-0.5 font-mono text-xs text-foreground-500 dark:bg-foreground-700 dark:text-foreground-400'>
-									{command.shortcut}
-								</kbd>
-							)}
-						</Command.Item>
-					);
-				})}
-			</Command.List>
-		</Command.Dialog>
+				{commands.map(command => (
+					<CommandPaletteItem
+						disabled={command.disabled?.() ?? false}
+						id={command.id}
+						key={command.id}
+						label={command.label}
+						onSelect={() => {
+							handleSelect(command);
+						}}
+						shortcut={command.shortcut}
+					/>
+				))}
+			</CommandPaletteList>
+		</CommandPaletteDialog>
 	);
 }
 
