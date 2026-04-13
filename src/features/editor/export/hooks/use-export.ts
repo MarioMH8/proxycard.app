@@ -24,7 +24,6 @@ function defaultDownloadBlob(blob: Blob, filename: string): void {
 
 /**
  * Pure export function (injectable for testing).
- * Extracted from the hook for testability per Constitution V (dependency injection).
  *
  * @param rendererReference - Ref to the CardRenderer instance
  * @param layers - Current layer stack (empty = show error toast)

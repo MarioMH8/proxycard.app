@@ -28,9 +28,8 @@ interface FrameTile {
  * Default configuration for a text field when a frame pack is loaded.
  *
  * Core positional fields (bounds, font, fontSize, alignment) are always present.
- * Additional fields from the original `loadTextOptions()` call are preserved
- * as optional properties so that no information from the original pack file
- * is lost (see constitution.md §Frame Pack Fidelity).
+ * Additional fields from the original pack data are preserved as optional
+ * properties so that no information is lost.
  */
 interface TextPreset {
 	/** Text alignment */
@@ -74,7 +73,7 @@ interface LayoutPreset {
 	setSymbolBounds: SetSymbolBounds;
 	/** Default text layer configurations */
 	textPresets: TextPreset[];
-	/** Card version identifier (e.g., "m15Regular") from the original card.version */
+	/** Card version identifier (e.g., "m15Regular") */
 	version: string;
 	/** Default watermark position */
 	watermarkBounds: Bounds;

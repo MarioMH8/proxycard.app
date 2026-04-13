@@ -1,8 +1,7 @@
 /**
- * TDD tests for the useExport hook.
- * These tests define the expected contract before implementation.
+ * Export hook tests.
  *
- * Note: Tests are scoped to the pure logic of exportPNGFromReference.
+ * Scoped to the pure logic of exportPNGFromReference.
  * DOM operations (anchor download) are tested via a mock injected factory.
  */
 

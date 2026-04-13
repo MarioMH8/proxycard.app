@@ -1,8 +1,8 @@
 /**
- * T051 [US7] — Editor layout integration tests (TDD)
+ * Editor layout integration tests.
  *
  * Tests:
- *   - Desktop layout: sidebar is visible at ≥xl breakpoint (w-2/5 aside rendered)
+ *   - Desktop layout: sidebar is visible at >=xl breakpoint (w-2/5 aside rendered)
  *   - Mobile layout: sidebar is hidden below xl breakpoint (aside has `hidden` class)
  *   - BottomDrawer: isBottomDrawerOpen state starts false
  *   - BottomDrawer: setBottomDrawerOpen(true) opens drawer in store
@@ -12,8 +12,7 @@
  *
  * Layout logic is tested at the store level (pure Redux state changes) because:
  *   - DOM rendering requires a browser environment not available in bun:test
- *   - The layout breakpoint logic uses Tailwind CSS classes (xl:flex / hidden) —
- *     these are static, not runtime-computed
+ *   - The layout breakpoint logic uses Tailwind CSS classes (xl:flex / hidden)
  *   - The BottomDrawer open/close state is in the Redux store and can be tested directly
  */
 

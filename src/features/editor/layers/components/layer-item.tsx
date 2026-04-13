@@ -18,9 +18,8 @@ interface DragHandleProps {
 
 type RowProps = Record<string, unknown>;
 interface LayerItemProps {
-	/** ref forwarded to the grip button (setActivatorNodeRef — pointer drag activator only) */
+	/** ref forwarded to the grip button (setActivatorNodeRef -- pointer drag activator only) */
 	dragHandleProps?: DragHandleProps;
-	/** Image loading status from editorSlice */
 	/** Image loading status from editorSlice */
 	imageStatus: LayerImageStatus | undefined;
 	/** Index of this layer in the list (used for keyboard reorder) */

@@ -1,5 +1,5 @@
 /**
- * TDD tests for the command palette feature (US5).
+ * Command palette tests.
  * Tests cover:
  *   - useCommands: action registry construction, disabled predicates
  *   - CommandPalette integration: open/close, filtering, action execution, keyboard
@@ -156,7 +156,7 @@ describe('Command interface', () => {
 
 /*
  * ---------------------------------------------------------------------------
- * Command registry completeness (contracts/redux-store.md §Command Palette Actions)
+ * Command registry completeness
  * ---------------------------------------------------------------------------
  */
 

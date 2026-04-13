@@ -1,14 +1,11 @@
 /**
- * TDD tests for the FramePicker feature.
+ * FramePicker tests.
  * Tile click should dispatch addFrameLayer to the card slice.
- *
- * These tests define the expected contract before implementation.
  */
 
 import type { FrameTile } from '@domain';
 import { describe, expect, it } from 'bun:test';
 
-// These imports will fail until implementation (TDD red phase)
 import { buildAddFrameLayerPayload } from './data/m15-standard';
 
 const sampleTile: FrameTile = {

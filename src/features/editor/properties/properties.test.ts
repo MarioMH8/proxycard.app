@@ -1,5 +1,5 @@
 /**
- * T046 [US6] — Properties panel tests (TDD)
+ * Properties panel tests.
  *
  * Tests:
  *   - Panel is hidden when no layer is selected (selectSelectedLayer returns undefined)
@@ -9,8 +9,7 @@
  *   - setLayerBounds action updates bounds in store with clamping
  *   - Consecutive setLayerBounds dispatches for same layer collapse into one undo entry
  *
- * Because PropertiesPanel is a React component wired to the Redux store, we test
- * the underlying logic at the store level (pure Redux) — same pattern as layers.test.ts.
+ * Tested at the store level (pure Redux) -- same pattern as layers.test.ts.
  * DOM rendering is kept out of bun:test.
  */
 

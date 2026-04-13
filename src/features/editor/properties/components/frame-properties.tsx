@@ -20,10 +20,9 @@ const FULL_CARD_BOUNDS: Bounds = { height: 1, width: 1, x: 0, y: 0 };
  *
  * Renders:
  *   - Four bounds number inputs (X, Y, Width, Height) in absolute pixels.
- *     Values are displayed as Math.round(fraction × cardDimension) and
- *     converted back to fractions before dispatch. This matches CardConjurer's
- *     original behaviour (scaleWidth / scaleHeight).
- *   - An opacity slider (0–100%).
+ *     Values are displayed as Math.round(fraction x cardDimension) and
+ *     converted back to fractions before dispatch.
+ *   - An opacity slider (0-100%).
  *
  * Consecutive setLayerBounds / setOpacity dispatches for the same layer are
  * collapsed into a single undo entry by the undo middleware.

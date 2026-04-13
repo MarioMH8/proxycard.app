@@ -16,10 +16,7 @@ import {
 	useEditorSelector,
 } from '../../store';
 
-/**
- * A single executable command in the command palette.
- * Matches the contract defined in contracts/redux-store.md §Command Palette Actions.
- */
+/** A single executable command in the command palette. */
 interface Command {
 	/** Execute the command. */
 	action: () => void;
@@ -62,13 +59,11 @@ interface UseCommandsReturn {
 
 /**
  * Builds the full action registry for the command palette.
- * Each entry maps to a user-triggerable action per
- * contracts/redux-store.md §Command Palette Actions:
  *
  *   | ID          | Label     | Shortcut        | Action                              |
  *   |-------------|-----------|-----------------|-------------------------------------|
- *   | add-layer   | Add Layer | —               | Opens frame picker                  |
- *   | download    | Download  | —               | Triggers PNG export                 |
+ *   | add-layer   | Add Layer | --              | Opens frame picker                  |
+ *   | download    | Download  | --              | Triggers PNG export                 |
  *   | undo        | Undo      | Cmd+Z / Ctrl+Z  | Dispatches undo                     |
  *   | redo        | Redo      | Cmd+Shift+Z     | Dispatches redo                     |
  */

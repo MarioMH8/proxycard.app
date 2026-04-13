@@ -1,10 +1,7 @@
 /**
  * M15 Standard frame pack data.
  *
- * Faithfully adapted from: modules/cardconjurer/js/frames/packM15Regular-1.js
- * See: constitution.md §Frame Pack Fidelity (Absolute Premise)
- *
- * Original file contains 21 tiles:
+ * 21 tiles:
  *   - 10 color frames (W, U, B, R, G, M, A, L, Eldrazi, V) with shared masks
  *   - 9 P/T boxes with shared bounds
  *   - 1 Midnight Frame (custom) with shared masks
@@ -23,7 +20,7 @@ const REGULAR_PATH = '/frames/m15/regular';
 const CUSTOM_PATH = '/frames/m15/custom';
 
 /* -------------------------------------------------------------------------- */
-/*  Shared masks (original: var masks)                                        */
+/* Shared masks                                                               */
 /*  6 masks applied to all color frames and the Midnight custom frame.        */
 /* -------------------------------------------------------------------------- */
 
@@ -37,20 +34,19 @@ const SHARED_MASKS: MaskReference[] = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/*  Shared P/T bounds (original: var bounds)                                  */
+/*  Shared P/T bounds                                                         */
 /* -------------------------------------------------------------------------- */
 
 const PT_BOUNDS: Bounds = { height: 0.0733, width: 0.188, x: 0.7573, y: 0.8848 };
 
 /* -------------------------------------------------------------------------- */
-/*  PT Inner Fill bounds (original: inline in tile #21)                       */
+/*  PT Inner Fill bounds                                                      */
 /* -------------------------------------------------------------------------- */
 
 const PT_INNER_FILL_BOUNDS: Bounds = { height: 0.04, width: 0.1414, x: 0.79, y: 0.8977 };
 
 /* -------------------------------------------------------------------------- */
 /*  Tiles                                                                     */
-/*  Order matches the original availableFrames array exactly.                 */
 /* -------------------------------------------------------------------------- */
 
 const M15_TILES: FrameTile[] = [
@@ -230,9 +226,7 @@ const M15_TILES: FrameTile[] = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/*  Layout preset (original: #loadFrameVersion onclick handler)               */
-/*  Faithfully reproduces card.version, card.artBounds, card.setSymbolBounds, */
-/*  card.watermarkBounds, and loadTextOptions({...}).                          */
+/*  Layout preset                                                             */
 /* -------------------------------------------------------------------------- */
 
 const M15_LAYOUT_PRESET: LayoutPreset = {
@@ -249,7 +243,6 @@ const M15_LAYOUT_PRESET: LayoutPreset = {
 		{
 			alignment: 'right',
 			bounds: { height: 71 / 2100, width: 0.9292, x: 0, y: 0.0613 },
-			/* original: unset (uses default) */
 			font: '',
 			fontSize: 71 / 1638,
 			manaCost: true,
@@ -260,7 +253,6 @@ const M15_LAYOUT_PRESET: LayoutPreset = {
 			shadowY: 0.0029,
 		},
 		{
-			/* original: unset (default = left) */
 			alignment: 'left',
 			bounds: { height: 0.0543, width: 0.8292, x: 0.0854, y: 0.0522 },
 			font: 'belerenb',
@@ -269,7 +261,6 @@ const M15_LAYOUT_PRESET: LayoutPreset = {
 			oneLine: true,
 		},
 		{
-			/* original: unset (default = left) */
 			alignment: 'left',
 			bounds: { height: 0.0543, width: 0.8292, x: 0.0854, y: 0.5664 },
 			font: 'belerenb',
@@ -278,10 +269,8 @@ const M15_LAYOUT_PRESET: LayoutPreset = {
 			oneLine: true,
 		},
 		{
-			/* original: unset (default = left) */
 			alignment: 'left',
 			bounds: { height: 0.2875, width: 0.828, x: 0.086, y: 0.6303 },
-			/* original: unset (uses default) */
 			font: '',
 			fontSize: 0.0362,
 			name: 'Rules Text',

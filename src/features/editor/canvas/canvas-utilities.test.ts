@@ -1,7 +1,5 @@
 /**
- * Tests for canvas viewport utility functions.
- * computeScale and computeTranslate moved here from card-renderer
- * after the renderer was simplified to native-resolution-only.
+ * Tests for canvas viewport utility functions (computeScale, computeTranslate).
  */
 
 import { CARD_HEIGHT, CARD_WIDTH } from '@domain';

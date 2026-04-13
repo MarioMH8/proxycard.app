@@ -1,8 +1,3 @@
-/**
- * Domain barrel export.
- * Pure domain types — no editing concerns, no runtime state.
- */
-
 export type { Bounds, Card } from './card';
 export { CARD_HEIGHT, CARD_WIDTH } from './card';
 export type {

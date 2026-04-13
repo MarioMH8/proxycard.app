@@ -1,8 +1,3 @@
-/**
- * Editor store barrel export.
- * Re-exports store factory, typed hooks, slices, selectors, and undo actions.
- */
-
 export { default as useCommandPaletteShortcut } from './hooks/use-command-palette-shortcut';
 export { default as useUndoRedoShortcuts } from './hooks/use-undo-redo-shortcuts';
 

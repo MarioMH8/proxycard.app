@@ -1,13 +1,13 @@
 /**
- * T029 [US2] — Layer operations tests (TDD)
+ * Layer operations tests.
  *
  * Tests: reorder updates canvas order, visibility toggle excludes from render,
  * lock blocks drag/delete (reorder/removeLayer) but allows visibility/opacity/rename/duplicate,
  * duplicate creates copy above with "(Copy)" suffix, rename with empty reverts to defaultName,
  * remove updates canvas (layer gone from state).
  *
- * These tests operate at the store level (pure Redux logic) because the invariant
- * "locked layer cannot be reordered/removed" is enforced by the useLayerOperations hook.
+ * Tested at the store level (pure Redux logic). The locked-layer guard is
+ * enforced by the useLayerOperations hook.
  */
 
 import { beforeEach, describe, expect, it } from 'bun:test';
@@ -187,10 +187,8 @@ describe('lock behaviour: blocks drag/delete, allows other operations', () => {
 	});
 
 	/**
-	 * The store itself does NOT enforce the locked constraint for remove/reorder —
-	 * that guard lives in useLayerOperations (hook-level). These tests verify the
-	 * guard logic conceptually: a locked layer ID IS in lockedLayerIds and the
-	 * hook would bail before dispatching remove/reorder.
+	 * The store does NOT enforce the locked constraint for remove/reorder --
+	 * that guard lives in useLayerOperations (hook-level).
 	 */
 	it('locked layer ID remains in lockedLayerIds after other operations', () => {
 		store.dispatch(addFrameLayer(FRAME_A));
