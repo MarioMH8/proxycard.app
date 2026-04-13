@@ -1,9 +1,12 @@
 import type { Layer } from '@domain';
 import type { ReactNode } from 'react';
+import { memo } from 'react';
 
 import useLayerThumbnail from '../hooks/use-layer-thumbnail';
 
 interface LayerThumbnailProps {
+	/** Index of this layer in the list — used for staggered generation */
+	index?: number | undefined;
 	/** Whether a drag operation is currently in progress (skip generation during drag) */
 	isDragging?: boolean;
 	/** The layer to generate a thumbnail for */
@@ -18,10 +21,11 @@ interface LayerThumbnailProps {
  *
  * For other layer types: shows the same skeleton (not yet renderable in v1).
  */
-function LayerThumbnail({ isDragging = false, layer }: LayerThumbnailProps): ReactNode {
+function LayerThumbnail({ index, isDragging = false, layer }: LayerThumbnailProps): ReactNode {
 	const source = layer.type === 'frame' ? layer.src : undefined;
 
 	const dataUrl = useLayerThumbnail({
+		index,
 		isDragging,
 		layerId: layer.id,
 		source,
@@ -48,5 +52,7 @@ function LayerThumbnail({ isDragging = false, layer }: LayerThumbnailProps): Rea
 
 LayerThumbnail.displayName = 'LayerThumbnail';
 
+const MemoLayerThumbnail = memo(LayerThumbnail);
+
 export type { LayerThumbnailProps };
-export default LayerThumbnail;
+export default MemoLayerThumbnail;
