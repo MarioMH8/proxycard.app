@@ -4,7 +4,12 @@ import { Accordion as RadixAccordion } from 'radix-ui';
 import type { ReactNode } from 'react';
 
 const variants = cva({
-	base: ['border-b', 'border-foreground-200', 'dark:border-foreground-700'],
+	base: [
+		'rounded-lg',
+		'border border-foreground-200 dark:border-foreground-700/60',
+		'bg-foreground-50 dark:bg-foreground-900',
+		'shadow-sm',
+	],
 	compoundVariants: [],
 	defaultVariants: {
 		variant: 'default',

@@ -7,6 +7,7 @@ const variants = cva({
 	base: [
 		'py-3 px-4',
 		'overflow-hidden',
+		'border-t border-foreground-200 dark:border-foreground-700/60',
 		'data-[state=closed]:animate-accordion-up',
 		'data-[state=open]:animate-accordion-down',
 	],
