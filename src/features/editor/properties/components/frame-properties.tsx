@@ -77,7 +77,6 @@ function FrameProperties({ isLocked = false, layer }: FramePropertiesProps): Rea
 	return (
 		<Accordion
 			collapsible
-			defaultValue='frame'
 			type='single'>
 			<AccordionItem value='frame'>
 				<AccordionTrigger
