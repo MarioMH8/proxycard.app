@@ -92,7 +92,7 @@ function FrameProperties({ isLocked = false, layer }: FramePropertiesProps): Rea
 					<div className='flex flex-col gap-4'>
 						{/* Bounds */}
 						<div className='grid grid-cols-2 gap-4'>
-							<Label dimension='sm'>
+							<Label dimension='xs'>
 								X
 								<Input
 									dimension='xs'
@@ -106,7 +106,7 @@ function FrameProperties({ isLocked = false, layer }: FramePropertiesProps): Rea
 									value={xPx}
 								/>
 							</Label>
-							<Label dimension='sm'>
+							<Label dimension='xs'>
 								Y
 								<Input
 									dimension='xs'
@@ -120,7 +120,7 @@ function FrameProperties({ isLocked = false, layer }: FramePropertiesProps): Rea
 									value={yPx}
 								/>
 							</Label>
-							<Label dimension='sm'>
+							<Label dimension='xs'>
 								W
 								<Input
 									dimension='xs'
@@ -134,7 +134,7 @@ function FrameProperties({ isLocked = false, layer }: FramePropertiesProps): Rea
 									value={wPx}
 								/>
 							</Label>
-							<Label dimension='sm'>
+							<Label dimension='xs'>
 								H
 								<Input
 									dimension='xs'
@@ -151,7 +151,7 @@ function FrameProperties({ isLocked = false, layer }: FramePropertiesProps): Rea
 						</div>
 
 						{/* Opacity */}
-						<Label dimension='sm'>
+						<Label dimension='xs'>
 							<div className='flex items-center justify-between'>
 								<span>Opacity</span>
 								<Span
