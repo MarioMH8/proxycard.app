@@ -1,4 +1,5 @@
 import type { Layer } from '@domain';
+import { cn } from '@shared/cva';
 import type { ReactNode } from 'react';
 import { memo } from 'react';
 
@@ -31,11 +32,14 @@ function LayerThumbnail({ index, isDragging = false, layer }: LayerThumbnailProp
 		source,
 	});
 
-	if (!dataUrl) {
+	if (!dataUrl || layer.type !== 'frame') {
 		return (
 			<div
 				aria-hidden='true'
-				className='h-10 w-7 shrink-0 animate-pulse rounded bg-foreground-300 dark:bg-foreground-700'
+				className={cn(
+					'h-10 w-7 shrink-0 rounded bg-foreground-300 dark:bg-foreground-700',
+					layer.type === 'frame' && 'animate-pulse'
+				)}
 			/>
 		);
 	}
