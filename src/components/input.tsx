@@ -29,6 +29,10 @@ const variants = cva({
 			dimension: 'xs',
 			transparent: true,
 		},
+		{
+			className: 'border-0 bg-transparent p-0 px-0 py-0',
+			inputType: 'range',
+		},
 	],
 	defaultVariants: {},
 	variants: {
@@ -36,6 +40,10 @@ const variants = cva({
 			base: 'px-4 py-3',
 			sm: 'px-3 py-2',
 			xs: 'px-2 py-1',
+		},
+		inputType: {
+			default: '',
+			range: 'h-2 rounded-full border-0 bg-foreground-200 p-0 accent-primary-600 disabled:cursor-not-allowed dark:bg-foreground-700 dark:accent-primary-400',
 		},
 		transparent: {
 			false: 'bg-foreground-50 border-foreground-300 dark:bg-foreground-950 dark:border-foreground-700',
@@ -51,22 +59,24 @@ type InputProperties = PropertiesWithAsChild<ComponentPropsWithRef<'input'> & In
 function className(
 	className?: string,
 	dimension: InputVariantProperties['dimension'] = 'base',
-	transparent = false
+	transparent = false,
+	inputType: InputVariantProperties['inputType'] = 'default'
 ): string {
 	return cn(
 		font({ dimension, variant: transparent ? 'muted' : 'default' }),
 		focus({ noBorder: true, variant: 'default' }),
-		variants({ className, dimension, transparent }),
+		variants({ className, dimension, inputType, transparent }),
 		className
 	);
 }
 
 function Input({ asChild = false, className: cls, dimension, transparent, ...properties }: InputProperties): ReactNode {
 	const Comp = asChild ? Slot.Slot : 'input';
+	const inputType = properties.type === 'range' ? 'range' : 'default';
 
 	return (
 		<Comp
-			className={className(cls, dimension, transparent)}
+			className={className(cls, dimension, transparent, inputType)}
 			{...properties}
 		/>
 	);
