@@ -1,4 +1,5 @@
 import type { Bounds } from './card';
+import type { TextPreset } from './text-preset';
 
 /** A named mask image that can be applied to a frame tile */
 interface MaskReference {
@@ -24,36 +25,6 @@ interface FrameTile {
 	thumbnailSrc: string | undefined;
 }
 
-/**
- * Default configuration for a text field when a frame pack is loaded.
- *
- * Core positional fields (bounds, font, fontSize, alignment) are always present.
- * Additional fields from the original pack data are preserved as optional
- * properties so that no information is lost.
- */
-interface TextPreset {
-	/** Text alignment */
-	alignment: 'center' | 'left' | 'right';
-	/** Position/size */
-	bounds: Bounds;
-	/** Font family */
-	font: string;
-	/** Font size (fraction of card height) */
-	fontSize: number;
-	/** Whether this is a mana cost field (renders mana symbols) */
-	manaCost?: boolean;
-	/** Spacing between mana symbols */
-	manaSpacing?: number;
-	/** Preset name (e.g., "Mana Cost", "Title", "Rules Text") */
-	name: string;
-	/** Whether this text field is restricted to a single line */
-	oneLine?: boolean;
-	/** Horizontal shadow offset (fraction of card width) */
-	shadowX?: number;
-	/** Vertical shadow offset (fraction of card height) */
-	shadowY?: number;
-}
-
 /** Vertical/horizontal anchor for set symbol positioning */
 type Anchor = 'bottom' | 'center' | 'left' | 'right' | 'top';
 
@@ -65,13 +36,16 @@ interface SetSymbolBounds extends Bounds {
 	vertical: Anchor;
 }
 
-/** Layout preset defining default positions for other layer types */
+/**
+ * Layout preset defining default positions for layer types.
+ * Contains text presets (factories for TextLayer creation on frame version load).
+ */
 interface LayoutPreset {
 	/** Default art layer position */
 	artBounds: Bounds;
 	/** Default set symbol position with alignment anchors */
 	setSymbolBounds: SetSymbolBounds;
-	/** Default text layer configurations */
+	/** Default text layer configurations (factory templates — not a render cascade level) */
 	textPresets: TextPreset[];
 	/** Card version identifier (e.g., "m15Regular") */
 	version: string;
@@ -103,4 +77,6 @@ interface FrameGroup {
 	packs: FramePack[];
 }
 
-export type { Anchor, FrameGroup, FramePack, FrameTile, LayoutPreset, MaskReference, SetSymbolBounds, TextPreset };
+export type { Anchor, FrameGroup, FramePack, FrameTile, LayoutPreset, MaskReference, SetSymbolBounds };
+
+export { type TextPreset } from './text-preset';
