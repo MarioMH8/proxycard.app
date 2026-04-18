@@ -10,6 +10,7 @@ import {
 	reorderLayer,
 	selectLayer as selectLayerAction,
 	selectLayers,
+	selectLockedLayerIds,
 	selectSelectedLayerId,
 	useEditorDispatch,
 	useEditorSelector,
@@ -40,6 +41,7 @@ function LayerList(): ReactNode {
 	const dispatch = useEditorDispatch();
 	const layers = useEditorSelector(selectLayers);
 	const selectedLayerId = useEditorSelector(selectSelectedLayerId);
+	const lockedLayerIds = useEditorSelector(selectLockedLayerIds);
 	const [announcement, setAnnouncement] = useState('');
 	const hasWarnedReference = useRef(false);
 
@@ -93,10 +95,15 @@ function LayerList(): ReactNode {
 				return;
 			}
 
+			// Locked layers cannot be reordered via keyboard shortcut (FR-009)
+			if (lockedLayerIds.includes(layer.id)) {
+				return;
+			}
+
 			dispatch(reorderLayer({ layerId: layer.id, toIndex: to }));
 			setAnnouncement(`${layer.name} moved to position ${String(to + 1)} of ${String(layers.length)}`);
 		},
-		[dispatch, layers]
+		[dispatch, layers, lockedLayerIds]
 	);
 
 	const handleSelect = useCallback(

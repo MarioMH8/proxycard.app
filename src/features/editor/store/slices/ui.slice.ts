@@ -16,7 +16,7 @@ interface UIState {
 	panY: number;
 	/**
 	 * Current zoom percentage (ZOOM_MIN–ZOOM_MAX).
-	 * `undefined` signals fit-to-viewport; useZoomPan computes actual % on mount.
+	 * Defaults to ZOOM_DEFAULT (100%) on editor load.
 	 */
 	zoom: number | undefined;
 }
