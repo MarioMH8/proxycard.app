@@ -6,7 +6,7 @@ const ZOOM_MIN = Number(import.meta.env.VITE_ZOOM_MIN ?? 10);
 /** Maximum allowed zoom percentage. Configurable via VITE_ZOOM_MAX. */
 const ZOOM_MAX = Number(import.meta.env.VITE_ZOOM_MAX ?? 400);
 /** Default zoom percentage applied on editor load and on reset. Configurable via VITE_ZOOM_DEFAULT. */
-const ZOOM_DEFAULT = Number(import.meta.env.VITE_ZOOM_DEFAULT ?? 80);
+const ZOOM_DEFAULT = Number(import.meta.env.VITE_ZOOM_DEFAULT ?? 100);
 
 interface UIState {
 	isBottomDrawerOpen: boolean;

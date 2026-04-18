@@ -88,8 +88,8 @@ const cardSlice = createSlice({
 			}
 			const { height, width, x, y } = action.payload.bounds;
 			(layer as { bounds: Bounds }).bounds = {
-				height: Math.max(0, Math.min(1, height)),
-				width: Math.max(0, Math.min(1, width)),
+				height: Math.max(1 / CARD_HEIGHT, Math.min(1, height)),
+				width: Math.max(1 / CARD_WIDTH, Math.min(1, width)),
 				x: Math.max(0, Math.min(1, x)),
 				y: Math.max(0, Math.min(1, y)),
 			};

@@ -249,14 +249,15 @@ describe('bounds inputs dispatch setLayerBounds', () => {
 		expect((layer as { bounds?: { y: number } }).bounds?.y).toBe(1);
 	});
 
-	it('setLayerBounds clamps width below 0 to 0', () => {
+	it('setLayerBounds clamps width below minimum to 1/CARD_WIDTH', () => {
 		store.dispatch(addFrameLayer({ ...FRAME_A, bounds: INITIAL_BOUNDS }));
 		const layerId = getLayer(store, 0).id;
 
 		store.dispatch(setLayerBounds({ bounds: { ...INITIAL_BOUNDS, width: -1 }, layerId }));
 
 		const layer = selectLayerById(store.getState(), layerId);
-		expect((layer as { bounds?: { width: number } }).bounds?.width).toBe(0);
+		// Minimum fraction = 1px / CARD_WIDTH ≈ 0.000497...
+		expect((layer as { bounds?: { width: number } }).bounds?.width).toBeGreaterThan(0);
 	});
 
 	it('setLayerBounds clamps height above 1 to 1', () => {

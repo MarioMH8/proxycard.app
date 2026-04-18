@@ -204,7 +204,7 @@ describe('cardSlice', () => {
 		expect(bounds?.y).toBe(1);
 	});
 
-	it('should clamp setLayerBounds width and height to [0, 1]', () => {
+	it('should clamp setLayerBounds width and height to (0, 1]', () => {
 		store.dispatch(addFrameLayer(FRAME_PAYLOAD));
 		const layerId = firstLayerId(store);
 
@@ -212,7 +212,8 @@ describe('cardSlice', () => {
 
 		const layer = selectLayerById(store.getState(), layerId);
 		const bounds = (layer as { bounds?: { height: number; width: number } }).bounds;
-		expect(bounds?.width).toBe(0);
+		// Width clamped to minimum 1px fraction (exclusive lower bound > 0)
+		expect(bounds?.width).toBeGreaterThan(0);
 		expect(bounds?.height).toBe(1);
 	});
 
@@ -305,7 +306,7 @@ describe('editorSlice', () => {
 
 describe('uiSlice', () => {
 	it('should have correct initial state', () => {
-		expect(selectZoom(store.getState())).toBe(80);
+		expect(selectZoom(store.getState())).toBe(100);
 		expect(selectPan(store.getState())).toEqual({ x: 0, y: 0 });
 		expect(selectIsFramePickerOpen(store.getState())).toBe(false);
 		expect(selectIsCommandPaletteOpen(store.getState())).toBe(false);
